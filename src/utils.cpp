@@ -242,7 +242,7 @@ void DisplayTilePreviewWindow(const char *window_title, bool &is_open,
 	}
 
 	// Create the window with a specific size
-	ImGui::SetNextWindowSize(ImVec2(columns * (tile_size + 10) + 40, 500), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(columns * (tile_size + 10) + 30, 500), ImGuiCond_Always);
 
 	// Create a regular window with a close button
 	if (ImGui::Begin(window_title, &is_open,
@@ -287,7 +287,7 @@ void DisplayFrameSelectionWindow(const char *window_title, bool &is_open,
 	}
 
 	// Set a reasonable initial size for the window
-	ImGui::SetNextWindowSize(ImVec2(columns * (frame_size + 10) + 40, 600), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(columns * (frame_size + 10) + 55, 600), ImGuiCond_Always);
 
 	// Create a regular window with a close button
 	if (ImGui::Begin(window_title, &is_open,
