@@ -16,12 +16,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set Lowercase Repository Name
-        id: repo_name
-        run: echo "REPO_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-      - name: build & push windows image
+      - name: set lowercase repository name
+        shell: pwsh
         run: |
-          # build already tagged for ghcr
+          $repo = "${{ github.repository }}".ToLower()
+          Add-Content -Path $env:GITHUB_ENV -Value "REPO_NAME_LOWER=$repo"
+      - name: build & push windows image
+        shell: pwsh
+        run: |
+          $img = "ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest"
           docker build -f Dockerfile.windows -t ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest .
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker push ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest
