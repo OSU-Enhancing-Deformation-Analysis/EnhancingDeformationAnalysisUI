@@ -1,4 +1,4 @@
-name: CI
+name: ci
 
 on:
   pull_request:
@@ -6,43 +6,97 @@ on:
     paths:
       - '.github/workflows/ci.yml'
       - 'src/**'
+  push:
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build-windows:
     permissions: write-all
     runs-on: windows-latest
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set Lowercase Repository Name
+      - name: set lowercase repository name
         id: repo_name
         run: echo "REPO_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-
-      - name: Pull Container and Test Build
+      - name: pull container and test build
         shell: powershell
         run: |
-          echo "Using container image: ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest"
+          echo "using container image: ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest"
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest
-          docker run --rm -v ${PWD}:C:\app ci-image-windows:latest powershell -Command "mkdir build; cd build; cmake -G 'Visual Studio 17 2022' ..; cmake --build . --config Release"
+          docker run --rm -v ${PWD}:C:\app ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest powershell -Command "mkdir build; cd build; cmake -G 'Visual Studio 17 2022' ..; cmake --build . --config Release"
 
   build-linux:
     runs-on: ubuntu-latest
-
+    if: ${{ github.event_name == 'pull_request' }}
     steps:
-      - name: Set Lowercase Repository Name
+      - name: set lowercase repository name
         id: repo_name
         run: echo "REPO_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-
       - uses: actions/checkout@v4
         with:
           submodules: 'true'
-
-      - name: Pull and Run Container
+      - name: pull and run container
         run: |
-          echo "Using container image: ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest"
+          echo "using container image: ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest"
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest
           docker run --rm -v $PWD:/app -w /app ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest bash -c "
             mkdir build && cd build && cmake .. && make -j$(nproc)
           "
+
+  release:
+    needs: [ build-windows, build-linux ]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: set lowercase repository name
+        id: repo_name
+        run: echo "REPO_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
+      - name: login to ghcr
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: pull ci images
+        run: |
+          docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest
+          docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest
+
+      - name: build windows release
+        shell: powershell
+        run: |
+          docker run --rm -v ${PWD}:C:\app ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest powershell -Command "mkdir build; cd build; cmake -G 'Visual Studio 17 2022' ..; cmake --build . --config Release"
+          powershell -Command "Compress-Archive -Path build\\Release\\* -DestinationPath deformationanalysisUI-${{ github.ref_name }}-windows.zip"
+
+      - name: build linux release
+        run: |
+          docker run --rm -v $PWD:/app -w /app ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest bash -lc "mkdir build && cd build && cmake .. && make -j$(nproc)"
+          tar czf deformationanalysisUI-${{ github.ref_name }}-linux.tar.gz -C build deformationanalysisUI_executable*
+
+      - name: create github release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: upload windows asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: deformationanalysisUI-${{ github.ref_name }}-windows.zip
+          asset_name: deformationanalysisUI-${{ github.ref_name }}-windows.zip
+          asset_content_type: application/zip
+
+      - name: upload linux asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: deformationanalysisUI-${{ github.ref_name }}-linux.tar.gz
+          asset_name: deformationanalysisUI-${{ github.ref_name }}-linux.tar.gz
+          asset_content_type: application/gzip
+
