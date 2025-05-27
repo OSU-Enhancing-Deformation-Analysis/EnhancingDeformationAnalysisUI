@@ -111,8 +111,8 @@ else() # UI_RELEASE
 	message("-- Building in DEBUG mode")
 if (!WIN32)
 	target_compile_options(EnhancingDeformationAnalysisUI PRIVATE -O)
+	target_compile_definitions(EnhancingDeformationAnalysisUI PRIVATE -g)
 endif() # !WIN32
-	target_compile_options(EnhancingDeformationAnalysisUI PRIVATE -g)
 endif() # UI_RELEASE
 
 if (UI_INCLUDE_PYTORCH)

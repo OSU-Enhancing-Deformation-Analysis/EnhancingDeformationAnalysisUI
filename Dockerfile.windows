@@ -29,10 +29,15 @@ run invoke-webrequest -uri "https://storage.googleapis.com/tensorflow/versions/2
     expand-archive -path tensorflow.zip -destinationpath c:\\tensorflow; \
     remove-item tensorflow.zip
 
+# install pytorch c api (cpu)
+run invoke-webrequest -uri "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.7.0%2Bcpu.zip" -outfile pytorch.zip; \
+    expand-archive -path pytorch.zip -destinationpath c:\\pytorch; \
+    remove-item pytorch.zip
+
 # set environment for vcpkg toolchain and tf dll lookup
 env VCPKG_ROOT=c:\\vcpkg \
     CMAKE_TOOLCHAIN_FILE=c:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake \
-    PATH=c:\\tensorflow\\lib;C:\\vcpkg\\installed\\x64-windows\\bin;%path%
+    PATH=C:\\tensorflow\\lib;C:\\tensorflow\\bin;C:\\pytorch\\lib;C:\\vcpkg\\installed\\x64-windows\\bin;%path%
 
 workdir c:\\app
 

@@ -26,7 +26,7 @@ jobs:
           echo "using container image: ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest"
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest
-          docker run --rm -v ${PWD}:C:\app ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest powershell -Command "mkdir build; cd build; cmake -G 'Visual Studio 17 2022' ..; cmake --build . --config Release"
+          docker run --rm -v ${PWD}:C:\app ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest powershell -Command "mkdir build; cd build; cmake -G 'Visual Studio 17 2022' .. -DUI_RELEASE=ON -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch; cmake --build . --config Release"
 
   build-linux:
     runs-on: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest
           docker run --rm -v $PWD:/app -w /app ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest bash -c "
-            mkdir build && cd build && cmake .. && make -j$(nproc)
+            mkdir build && cd build && cmake .. -DUI_RELEASE -DTorch_DIR=/opt/libtorch/share/cmake/Torch && make -j$(nproc)
           "
 
   release:
