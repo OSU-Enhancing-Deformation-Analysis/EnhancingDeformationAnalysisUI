@@ -20,7 +20,7 @@ run tar -C /usr/local -xzf libtensorflow-cpu-linux-x86_64.tar.gz
 run rm libtensorflow-cpu-linux-x86_64.tar.gz
 
 # fetch libtorch c++ api (cpu only)
-run wget -q --no-check-certificate -O libtorch https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcpu.zip \
+run wget -q --no-check-certificate -O libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcpu.zip \
  && unzip libtorch.zip -d /opt \
  && rm libtorch.zip
 
