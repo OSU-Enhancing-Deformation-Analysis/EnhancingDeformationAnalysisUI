@@ -1,54 +1,39 @@
-# use windows server core ltsc2022
 from mcr.microsoft.com/windows/servercore:ltsc2022
 
-# use powershell
-shell ["powershell", "-Command"]
+# use powershell by default
+shell ["powershell", "-Command", "$ErrorActionPreference='Stop';"]
 
-# install choco + tools
+# install chocolatey + cmake, git, zip
 run set-executionpolicy bypass -scope process -force; \
     [system.net.servicepointmanager]::securityprotocol = [system.net.servicepointmanager]::securityprotocol -bor 3072; \
     iex ((new-object system.net.webclient).downloadstring('https://chocolatey.org/install.ps1')); \
     choco upgrade chocolatey -y; \
     choco install -y cmake git zip
 
-# install vs build tools
+# install vs build tools (msvc & sdk)
 run invoke-webrequest -uri https://aka.ms/vs/17/release/vs_buildtools.exe -outfile vs_buildtools.exe; \
     start-process vs_buildtools.exe -argumentlist '/quiet','/norestart','/add','Microsoft.VisualStudio.Workload.VCTools','/add','Microsoft.VisualStudio.Component.Windows10SDK.19041' -wait; \
     remove-item vs_buildtools.exe
 
-# install vcpkg + deps (glfw3, tiff)
-run git clone https://github.com/microsoft/vcpkg.git C:/vcpkg; \
-    C:/vcpkg/bootstrap-vcpkg.bat -disableMetrics; \
-    C:/vcpkg/vcpkg.exe install glfw3 tiff:x64-windows
+# bootstrap vcpkg + install deps (glfw3, tiff, opencv4)
+shell ["cmd", "/S", "/C"]
+run "c:\\program files (x86)\\microsoft visual studio\\2022\\buildtools\\common7\\tools\\vsdevcmd.bat" && ^
+    git clone https://github.com/microsoft/vcpkg.git C:\\vcpkg && ^
+    C:\\vcpkg\\bootstrap-vcpkg.bat -disableMetrics && ^
+    C:\\vcpkg\\vcpkg.exe install glfw3 tiff:x64-windows opencv4:x64-windows
 
-# install tensorflow c api
+# back to powershell
+shell ["powershell", "-Command", "$ErrorActionPreference='Stop';"]
+
+# install tensorflow c api (cpu)
 run invoke-webrequest -uri "https://storage.googleapis.com/tensorflow/versions/2.18.0/libtensorflow-cpu-windows-x86_64.zip" -outfile tensorflow.zip; \
     expand-archive tensorflow.zip -destinationpath C:/tensorflow; \
     remove-item tensorflow.zip
 
-# build & install opencv
-run \
-  git clone --depth 1 --branch 4.10.0 https://github.com/opencv/opencv.git C:/opencv-src && \
-  mkdir C:/opencv-src/build && \
-  & "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/VsDevCmd.bat" && \
-  & "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Auxiliary/Build/vcvars64.bat" && \
-  cmake -S C:/opencv-src -B C:/opencv-src/build -G "Visual Studio 17 2022" \
-    -D BUILD_opencv_python2=OFF \
-    -D BUILD_opencv_python3=OFF \
-    -D WITH_QT=OFF \
-    -D WITH_FFMPEG=OFF \
-    -D BUILD_EXAMPLES=OFF \
-    -D INSTALL_C_EXAMPLES=OFF \
-    -D CMAKE_INSTALL_PREFIX=C:/opencv && \
-  cmake --build C:/opencv-src/build --config Release --target INSTALL && \
-  remove-item -Recurse -Force C:/opencv-src
-
-# env vars for vcpkg & cmake
+# env for vcpkg & tf libs
 env VCPKG_ROOT="C:/vcpkg"
 env CMAKE_TOOLCHAIN_FILE="C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
-env OpenCV_DIR="C:/opencv"
 env LD_LIBRARY_PATH="C:/tensorflow/lib;$env:LD_LIBRARY_PATH"
 
 workdir C:/
-
 cmd ["powershell"]
