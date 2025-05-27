@@ -1,5 +1,5 @@
 #pragma once
 
 namespace cli {
-	void run(int argc, char** argv);
+void run(int argc, char **argv);
 }

@@ -30,12 +30,12 @@ def check_if_installed():
     elif platform.system() == "Darwin":
         if subprocess.call(["brew", "list", "opencv"]) == 0:
             opencv = True
-        if os.environ["LD_LIBRARY_PATH"].find("tensorflow") != -1:
+        if subprocess.call(["ldd", "/usr/local/lib/libtensorflow.so"]) == 0:
             tensorflow = True
     else:
         if subprocess.call(["dpkg", "-s", "libopencv-dev"]) == 0:
             opencv = True
-        if os.environ["LD_LIBRARY_PATH"].find("tensorflow") != -1:
+        if subprocess.call(["ldd", "/usr/local/lib/libtensorflow.so"]) == 0:
             tensorflow = True
     return (opencv, tensorflow)
 
@@ -92,10 +92,15 @@ def install_packages():
             paths.append(os.path.join(install_dir, "tensorflow", "lib"))
             paths.append(os.path.join(install_dir, "tensorflow", "include"))
         else:
-            subprocess.check_call(["tar", "-xzf", tf_filename, "-C", os.path.join(install_dir, "tensorflow")])
+            print(f"installing tensorflow to /usr/local/")
+            subprocess.check_call(["sudo", "tar", "-xzf", tf_filename, "-C", "/usr/local/"])
+            subprocess.check_call(["ldconfig"])
 
     if not tensorflow or not opencv:
         print("Installation complete.")
+        if platform.system() != "Windows":
+            input("Press Enter to exit...")
+            exit(0)
         if not opencv:
             print(f"Add the environment variable OpenCV_DIR with the value {os.path.join(install_dir, 'opencv\\build')}")
         print("Please add the following paths to the PATH environment variable:")
