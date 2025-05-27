@@ -12,6 +12,7 @@ run apt-get update \
     libopencv-dev \
     libglfw3-dev \
     libtiff-dev \
+    libwayland-dev \
  && rm -rf /var/lib/apt/lists/*
 
 # fetch tensorflow c api (cpu only)
