@@ -32,7 +32,11 @@ jobs:
         run: |
           echo "using container image: ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest"
           docker pull ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest
-          docker run --rm -v ${PWD}:C:\app ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest powershell -Command "mkdir build; cd build; cmake -G 'Visual Studio 17 2022' .. -DUI_RELEASE:bool=true -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch; cmake --build . --config Release"
+          docker run --rm \
+          -v "${{ github.workspace }}:C:\app" \
+          ghcr.io/…/ci-image-windows:latest \
+          ["powershell.exe","-Command","mkdir build; cd build; cmake -G 'Visual Studio 17 2022' .. -DUI_RELEASE:bool=true -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch; cmake --build . --config Release"]
+
 
   build-linux:
     runs-on: ubuntu-latest

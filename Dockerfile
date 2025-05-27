@@ -10,9 +10,13 @@ run apt-get update \
     wget \
     unzip \
     libopencv-dev \
-    libglfw3-dev \
-    libtiff-dev \
+    libjpeg-dev \
+    libpng-dev \
     libwayland-dev \
+    xorg-dev \
+    libxkbcommon-dev \
+    wayland-protocols \
+    extra-cmake-modules \
  && rm -rf /var/lib/apt/lists/*
 
 # fetch tensorflow c api (cpu only)
