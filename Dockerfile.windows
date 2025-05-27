@@ -21,7 +21,7 @@ run call "c:\\program files\\microsoft visual studio\\2022\\buildtools\\common7\
     c:\\vcpkg\\bootstrap-vcpkg.bat -disableMetrics ^&^& \
     c:\\vcpkg\\vcpkg.exe install glfw3 tiff:x64-windows opencv4:x64-windows
 
-# back to powershell
+# back to powershell.
 shell ["powershell", "-command", "$erroractionpreference='stop';"]
 
 # install tensorflow c api (cpu)
