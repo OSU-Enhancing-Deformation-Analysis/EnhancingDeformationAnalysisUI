@@ -27,20 +27,21 @@ run invoke-webrequest -uri "https://storage.googleapis.com/tensorflow/versions/2
     remove-item tensorflow.zip
 
 # build & install opencv
-run git clone --depth 1 --branch 4.10.0 https://github.com/opencv/opencv.git C:/opencv-src; \
-    mkdir C:/opencv-src/build; \
-    & "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/VsDevCmd.bat"; \
-    & "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Auxiliary/Build/vcvars64.bat"; \
-    cmake -S C:/opencv-src -B C:/opencv-src/build -G "Visual Studio 17 2022" `
-        -D BUILD_opencv_python2=OFF `
-        -D BUILD_opencv_python3=OFF `
-        -D WITH_QT=OFF `
-        -D WITH_FFMPEG=OFF `
-        -D BUILD_EXAMPLES=OFF `
-        -D INSTALL_C_EXAMPLES=OFF `
-        -D CMAKE_INSTALL_PREFIX=C:/opencv; \
-    cmake --build C:/opencv-src/build --config Release --target INSTALL; \
-    remove-item -recurse -force C:/opencv-src
+run \
+  git clone --depth 1 --branch 4.10.0 https://github.com/opencv/opencv.git C:/opencv-src && \
+  mkdir C:/opencv-src/build && \
+  & "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/Common7/Tools/VsDevCmd.bat" && \
+  & "C:/Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Auxiliary/Build/vcvars64.bat" && \
+  cmake -S C:/opencv-src -B C:/opencv-src/build -G "Visual Studio 17 2022" \
+    -D BUILD_opencv_python2=OFF \
+    -D BUILD_opencv_python3=OFF \
+    -D WITH_QT=OFF \
+    -D WITH_FFMPEG=OFF \
+    -D BUILD_EXAMPLES=OFF \
+    -D INSTALL_C_EXAMPLES=OFF \
+    -D CMAKE_INSTALL_PREFIX=C:/opencv && \
+  cmake --build C:/opencv-src/build --config Release --target INSTALL && \
+  remove-item -Recurse -Force C:/opencv-src
 
 # env vars for vcpkg & cmake
 env VCPKG_ROOT="C:/vcpkg"
