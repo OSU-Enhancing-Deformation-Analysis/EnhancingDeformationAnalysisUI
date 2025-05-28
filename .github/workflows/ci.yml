@@ -11,11 +11,6 @@ on:
       - 'v*.*.*'
 
 jobs:
-  name: ci
-
-on: [push,pull_request]
-
-jobs:
   build-windows:
     runs-on: windows-latest
     env:
