@@ -27,14 +27,21 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: pull container and test build
+      - name: test windows container
         shell: pwsh
         run: |
-          docker pull ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest
+          $img = "ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest"
+          docker pull $img
           docker run --rm `
-            -v "${{ github.workspace }}:C:\app" `
-            ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest `
-            mkdir build; cd build; cmake -G \"Visual Studio 17 2022\" .. -DUI_RELEASE:bool=true -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch; cmake --build . --config Release
+          -v "${{ github.workspace }}:C:\app" `
+          -w "C:\app" `
+          $img `
+          powershell.exe -NoProfile -Command `
+            'mkdir build; cmake -S . -B build -G "Visual Studio 17 2022" `
+            -DUI_RELEASE:BOOL=TRUE `
+            -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch; `
+            cmake --build build --config Release'
+
 
   build-linux:
     runs-on: ubuntu-latest
