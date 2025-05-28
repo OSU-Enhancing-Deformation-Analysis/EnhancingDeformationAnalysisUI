@@ -31,14 +31,14 @@ jobs:
         uses: actions/cache@v3
         with:
           path: c:/tensorflow
-          key: ${{ runner.os }}-tf-capi-${{ env.TF_VERSION }}
+          key: ${{ runner.os }}-tf-capi-2.18.1
 
       # cache pytorch c api
       - name: cache libtorch c api
         uses: actions/cache@v3
         with:
           path: c:/pytorch
-          key: ${{ runner.os }}-torch-capi-${{ env.TORCH_VERSION }}
+          key: ${{ runner.os }}-torch-capi-2.7.0
 
       - name: bootstrap & install c++ deps
         shell: pwsh
@@ -55,7 +55,7 @@ jobs:
       - name: download tensorflow c api
         shell: pwsh
         run: |
-          $url = "https://storage.googleapis.com/tensorflow/versions/${env:TF_VERSION}/libtensorflow-cpu-windows-x86_64.zip"
+          $url = "https://storage.googleapis.com/tensorflow/versions/2.18.1/libtensorflow-cpu-windows-x86_64.zip"
           if (-not (test-path c:/tensorflow/include)) {
             Invoke-WebRequest $url -OutFile tf.zip
             Expand-Archive tf.zip -DestinationPath c:/tensorflow
@@ -65,7 +65,7 @@ jobs:
       - name: download libtorch c api
         shell: pwsh
         run: |
-          $url = "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-${env:TORCH_VERSION}.zip"
+          $url = "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcpu.zip"
           if (-not (test-path c:/pytorch/lib)) {
             Invoke-WebRequest $url -OutFile torch.zip
             Expand-Archive torch.zip -DestinationPath c:/pytorch
