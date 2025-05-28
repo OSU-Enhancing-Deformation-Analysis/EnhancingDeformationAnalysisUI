@@ -30,7 +30,7 @@ jobs:
       - name: test windows container
         shell: cmd
         run: |
-          set img = "ghcr.io/%REPO_NAME_LOWER%/ci-image-windows:latest"
+          set img=ghcr.io/%REPO_NAME_LOWER%/ci-image-windows:latest
           docker pull %img%
           docker run --rm -v "%GITHUB_WORKSPACE%:C:\app" -w "C:\app" --entrypoint cmd.exe %img% mkdir build
           docker run --rm -v "%GITHUB_WORKSPACE%:C:\app" -w "C:\app" --entrypoint cmd.exe %img% /S /C "call \"C:\Program Files\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat\" && cmake -S . -B build -G \"Visual Studio 17 2022\" -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/pytorch/share/cmake/Torch && cmake --build build"
