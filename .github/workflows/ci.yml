@@ -82,7 +82,7 @@ jobs:
             -DTorch_DIR=c:/pytorch/share/cmake/Torch
           cmake --build build
 
-    build-linux:
+  build-linux:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
     steps:
