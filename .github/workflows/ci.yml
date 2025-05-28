@@ -13,9 +13,6 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
-    env:
-      TF_VERSION: "2.18.0"
-      TORCH_VERSION: "2.7.0+cpu"
     steps:
       - uses: actions/checkout@v4
 
@@ -79,7 +76,10 @@ jobs:
           cmake -S . -B build `
             -G Ninja `
             -DUI_RELEASE:BOOL=true `
-            -DTorch_DIR=c:/pytorch/share/cmake/Torch
+            -DTorch_DIR=c:/pytorch/share/cmake/Torch `
+            -DOpenCV_DIR=c:/vcpkg/installed/x64-windows/share/opencv4 `
+            -DTENSORFLOW_INCLUDE_DIR=c:/tensorflow/include `
+            -DTENSORFLOW_LIBRARY=c:/tensorflow/lib/tensorflow.lib
           cmake --build build
 
   build-linux:
