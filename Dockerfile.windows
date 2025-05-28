@@ -7,7 +7,7 @@ run set-executionpolicy bypass -scope process -force; \
     [system.net.servicepointmanager]::securityprotocol = [system.net.servicepointmanager]::securityprotocol -bor 3072; \
     iex ((new-object system.net.webclient).downloadstring('https://chocolatey.org/install.ps1')); \
     choco upgrade chocolatey -y; \
-    choco install -y cmake git zip
+    choco install -y cmake git zip ninja
 
 # install vs build tools
 run invoke-webrequest -uri https://aka.ms/vs/17/release/vs_buildtools.exe -outfile vs_buildtools.exe; \
