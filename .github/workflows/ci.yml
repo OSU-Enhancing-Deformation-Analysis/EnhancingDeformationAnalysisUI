@@ -11,46 +11,83 @@ on:
       - 'v*.*.*'
 
 jobs:
+  name: ci
+
+on: [pull_request]
+
+jobs:
   build-windows:
-    permissions: write-all
     runs-on: windows-latest
-    if: ${{ github.event_name == 'pull_request' }}
+    env:
+      TF_VERSION: "2.18.0"
+      TORCH_VERSION: "2.7.0+cpu"
     steps:
       - uses: actions/checkout@v4
-      - name: set lowercase repository name
-        shell: pwsh
-        run: |
-          $repo = "${{ github.repository }}".ToLower()
-          Add-Content -Path $env:GITHUB_ENV -Value "REPO_NAME_LOWER=$repo"
-      - uses: docker/login-action@v2
+
+      # cache vcpkg sources & installed packages
+      - name: cache vcpkg
+        uses: actions/cache@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: test windows container
+          path: c:/vcpkg
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+
+      # cache tensorflow c api
+      - name: cache tensorflow c api
+        uses: actions/cache@v3
+        with:
+          path: c:/tensorflow
+          key: ${{ runner.os }}-tf-capi-${{ env.TF_VERSION }}
+
+      # cache pytorch c api
+      - name: cache libtorch c api
+        uses: actions-cache@v3
+        with:
+          path: c:/pytorch
+          key: ${{ runner.os }}-torch-capi-${{ env.TORCH_VERSION }}
+
+      - name: bootstrap & install c++ deps
         shell: pwsh
         run: |
-          $img = "ghcr.io/${{ env.REPO_NAME_LOWER }}/ci-image-windows:latest"
-          docker pull $img
-          # configure
-          docker run --rm `
-            -v "${{ github.workspace }}:C:\app" `
-            -w "C:\app" `
-            $img `
-            cmake -S . -B build `
-              -G "Visual Studio 17 2022" `
-              -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
-              -DUI_RELEASE:BOOL=true `
-              -DTorch_DIR=C:/pytorch/share/cmake/Torch
+          # bootstrap vcpkg if missing
+          if (-not (test-path c:/vcpkg/vcpkg.exe)) {
+            git clone https://github.com/microsoft/vcpkg.git c:/vcpkg
+            & c:/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          }
 
-          # build
-          docker run --rm `
-            -v "${{ github.workspace }}:C:\app" `
-            -w "C:\app" `
-            $img `
-            cmake --build build
+          # install opencv4
+          & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
 
-  build-linux:
+      - name: download tensorflow c api
+        shell: pwsh
+        run: |
+          $url = "https://storage.googleapis.com/tensorflow/versions/${env:TF_VERSION}/libtensorflow-cpu-windows-x86_64.zip"
+          if (-not (test-path c:/tensorflow/include)) {
+            Invoke-WebRequest $url -OutFile tf.zip
+            Expand-Archive tf.zip -DestinationPath c:/tensorflow
+            rm tf.zip
+          }
+
+      - name: download libtorch c api
+        shell: pwsh
+        run: |
+          $url = "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-${env:TORCH_VERSION}.zip"
+          if (-not (test-path c:/pytorch/lib)) {
+            Invoke-WebRequest $url -OutFile torch.zip
+            Expand-Archive torch.zip -DestinationPath c:/pytorch
+            rm torch.zip
+          }
+
+      - name: configure & build
+        shell: pwsh
+        run: |
+          mkdir build
+          cmake -S . -B build `
+            -G Ninja `
+            -DUI_RELEASE:BOOL=true `
+            -DTorch_DIR=c:/pytorch/share/cmake/Torch
+          cmake --build build
+
+    build-linux:
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
     steps:
