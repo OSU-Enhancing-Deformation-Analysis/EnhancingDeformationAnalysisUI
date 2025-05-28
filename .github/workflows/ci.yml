@@ -35,9 +35,9 @@ jobs:
           docker run --rm `
             -v "${{ github.workspace }}:C:\app" `
             -w "C:\app" `
-            --entrypoint powershell.exe `
+            --entrypoint cmd.exe `
             $img `
-            -NoProfile -Command 'cmake -S . -B build -G "Visual Studio 17 2022" -DUI_RELEASE:BOOL=TRUE -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch; cmake --build build --config Release'
+            /S /C "cmake -S . -B build -G \"Visual Studio 17 2022\" -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch; cmake --build build --config Release"
 
   build-linux:
     runs-on: ubuntu-latest
