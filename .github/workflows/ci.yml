@@ -35,7 +35,7 @@ jobs:
 
       # cache pytorch c api
       - name: cache libtorch c api
-        uses: actions-cache@v3
+        uses: actions/cache@v3
         with:
           path: c:/pytorch
           key: ${{ runner.os }}-torch-capi-${{ env.TORCH_VERSION }}
