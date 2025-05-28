@@ -14,13 +14,6 @@ run invoke-webrequest -uri https://aka.ms/vs/17/release/vs_buildtools.exe -outfi
     start-process vs_buildtools.exe -argumentlist '/quiet','/norestart','/add','Microsoft.VisualStudio.Workload.VCTools','/add','Microsoft.VisualStudio.Component.Windows10SDK.19041' -NoNewWindow -Wait; \
     remove-item vs_buildtools.exe
 
-# bootstrap vcpkg and install c++ deps under an msvc dev shell
-shell ["cmd", "/S", "/C"]
-run call "c:\\program files\\microsoft visual studio\\2022\\buildtools\\common7\\tools\\vsdevcmd.bat" ^&^& \
-    git clone https://github.com/Microsoft/vcpkg.git c:\\vcpkg ^&^& \
-    c:\\vcpkg\\bootstrap-vcpkg.bat -disableMetrics ^&^& \
-    c:\\vcpkg\\vcpkg.exe install opencv4:x64-windows
-
 # back to powershell
 shell ["powershell", "-command", "$erroractionpreference='stop';"]
 
@@ -35,7 +28,11 @@ run invoke-webrequest -uri "https://download.pytorch.org/libtorch/cpu/libtorch-w
     remove-item pytorch.zip
 
 # ensure vcpkg actually gets cloned & bootstrapped
-run git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg; C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics; C:\vcpkg\vcpkg.exe install opencv4:x64-windows
+shell ["powershell","-NoProfile","-Command"]
+run   & 'C:\Program Files\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat' -NoLogo; \
+      git clone https://github.com/microsoft/vcpkg.git C:\vcpkg; \
+      C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics; \
+      C:\vcpkg\vcpkg.exe install opencv4:x64-windows
 
 # set environment for vcpkg toolchain and tf dll lookup
 env VCPKG_ROOT=c:\\vcpkg \

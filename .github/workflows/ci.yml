@@ -42,9 +42,9 @@ jobs:
           docker run --rm `
             -v "${{ github.workspace }}:C:\app" `
             -w "C:\app" `
-            --entrypoint cmake `
+            --entrypoint cmd.exe `
             $img `
-            -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/pytorch/share/cmake/Torch && cmake --build build
+            \"C:\Program Files\Microsoft Visual Studio\2022\buildtools\common7\tools\vsdevcmd.bat\" cmake -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/pytorch/share/cmake/Torch && cmake --build build
 
   build-linux:
     runs-on: ubuntu-latest

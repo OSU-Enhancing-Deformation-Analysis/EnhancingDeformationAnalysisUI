@@ -138,6 +138,117 @@ The application is built with a modular architecture:
 - **Threading Support**: Background processing for responsive UI during heavy computations
 - **File I/O**: Support for TIFF formats commonly used in microscopy
 
+## Developer Architecture Guide
+
+### Project Structure
+
+```
+src/
+├── core/                           # Core processing algorithms
+│   ├── DeformationAnalysisInterface.*  # Main analysis orchestration
+│   ├── ImageAnalysis.*                 # Image processing utilities
+│   ├── CrackDetector.*                 # Crack detection algorithms
+│   ├── FeatureTracker.*                # Point tracking and strain calculation
+│   ├── Stabilizer.*                    # Image stabilization
+│   ├── DenoiseInterface.*              # AI model integration
+│   ├── Tiler.*                         # Image tiling for large datasets
+│   └── ThreadPool.*                    # Asynchronous processing
+├── ui/                             # User interface components
+│   ├── Application.*                   # Main UI application class
+│   ├── ImageSet.*                      # Image sequence management
+│   └── PreprocessingTab.*              # Preprocessing controls
+├── OpenGL/                         # Graphics rendering
+│   └── Texture.*                       # OpenGL texture management
+├── main.cpp                        # Application entry point
+├── cli.cpp/.hpp                    # Command-line interface
+└── utils.*                         # Shared utilities
+```
+
+### Key Components
+
+#### Core Processing Pipeline
+- **DeformationAnalysisInterface**: Interface for the models we trained
+- **ImageAnalysis**: Handles image analysis, such as histograms of each frame or specific regions
+- **CrackDetector**: Implements crack detection using morphological operations and contour analysis
+- **FeatureTracker**: Handles optical flow-based feature tracking and crack width calculations
+- **Stabilizer**: Image stabilization using feature matching
+
+#### AI Integration
+- **DenoiseInterface**: Wrapper around TensorFlow models via cppflow
+    - **Model Location**: `/assets/models/tk_r_em/` contains pre-trained models (from tk_r_em) for different SEM types
+    - **Supported Models**: sfr_hrsem, sfr_lrsem, sfr_hrtem, sfr_lrtem, sfr_hrstem, sfr_lrstem
+- **StrainAnalysis**: Models trained by our capstone group to predict displacement in a sequence of images
+    - **Model Location**: `/assets/models/` contains the model `batch-m4-combo`
+
+#### UI Architecture
+- **ImGui-based**: Immediate mode GUI for responsive real-time interaction
+- **Tab System**: Each image set gets its own tab with independent state
+- **OpenGL Backend**: Hardware-accelerated image display with zoom/pan capabilities
+- **Threading**: UI runs on main thread, heavy processing on worker threads via ThreadPool
+
+### Build System
+
+#### Dependencies
+- **CMake**: Build system configuration in `CMakeLists.txt`
+- **Submodules**: External libraries in `libs/` (cppflow, imgui, glfw, etc.)
+- **External**: OpenCV (system), TensorFlow C API (system)
+
+#### Key Libraries
+```
+libs/
+├── cppflow/        # TensorFlow C++ wrapper
+├── imgui/          # Immediate mode GUI
+├── glfw/           # Window/input management
+├── glad/           # OpenGL loader
+├── gif-h/          # GIF export functionality
+└── libtiff/        # TIFF file I/O
+```
+
+### Data Flow
+
+1. **Image Loading**: `ImageSet` loads TIFF sequences, manages metadata
+2. **Preprocessing**: User applies crop, stabilization, denoising via UI controls
+3. **Analysis**: `DeformationAnalysisInterface` coordinates feature tracking, crack detection
+4. **Visualization**: Results displayed in real-time via OpenGL textures
+5. **Export**: CSV data export, processed image sequences, GIF animations
+
+### Threading Model
+
+- **Main Thread**: UI rendering, user interaction
+- **Worker Threads**: Image processing, AI inference, file I/O
+- **ThreadPool**: Manages background tasks with configurable thread count
+- **Synchronization**: Results passed back to main thread via callbacks
+
+### Memory Management
+
+- **Image Storage**: Images stored on GPU memory
+- **GPU Memory**: TensorFlow/PyTorch models run on GPU when available (CUDA)
+- **Caching**: Processed results cached to avoid recomputation
+- **Streaming**: Large datasets processed in tiles to manage memory usage
+
+### Configuration
+
+- **Models**: Model selection and parameters in UI
+- **Build Options**: CMake flags for CUDA, profiling, debug builds
+- **Runtime**: No external config files - all settings in UI state
+
+### Extension Points
+
+To add new functionality:
+- **Placeholder**:
+
+### Testing & Debugging
+
+- **Debug Builds**: CMake debug configuration available
+- **Profiling**: UI_PROFILE=ON CMake option for performance analysis
+- **Logging**: Console output for debugging, no formal logging framework
+
+### Deployment
+
+- **Docker**: Dockerfile for CI/CD on GitHub
+- **Windows**: Visual Studio project files, setup.py for dependencies
+- **Linux**: Standard CMake build process, pull libraries yourself
+
 ## Common Use Cases
 
 ### Material Testing Analysis
