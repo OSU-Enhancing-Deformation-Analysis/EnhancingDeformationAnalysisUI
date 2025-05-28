@@ -39,6 +39,9 @@ env VCPKG_ROOT=c:\\vcpkg \
     CMAKE_TOOLCHAIN_FILE=c:\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake \
     PATH=C:\\tensorflow\\lib;C:\\tensorflow\\bin;C:\\pytorch\\lib;C:\\vcpkg\\installed\\x64-windows\\bin;%path%
 
+# add chocolatey+cmake to path
+env PATH="C:\\ProgramData\\chocolatey\\bin;C:\\Program Files\\CMake\\bin;${PATH}"
+
 workdir c:\\app
 
 cmd ["powershell"]
