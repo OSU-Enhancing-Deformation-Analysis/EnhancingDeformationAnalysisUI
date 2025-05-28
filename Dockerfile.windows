@@ -35,9 +35,7 @@ run invoke-webrequest -uri "https://download.pytorch.org/libtorch/cpu/libtorch-w
     remove-item pytorch.zip
 
 # ensure vcpkg actually gets cloned & bootstrapped
-run git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg `
-  && C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics `
-  && C:\vcpkg\vcpkg.exe install opencv4:x64-windows
+run git clone https://github.com/Microsoft/vcpkg.git C:\vcpkg; C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics; C:\vcpkg\vcpkg.exe install opencv4:x64-windows
 
 # set environment for vcpkg toolchain and tf dll lookup
 env VCPKG_ROOT=c:\\vcpkg \
