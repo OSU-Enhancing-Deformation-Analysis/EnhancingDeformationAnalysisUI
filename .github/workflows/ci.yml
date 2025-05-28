@@ -44,7 +44,7 @@ jobs:
             -w "C:\app" `
             --entrypoint cmake `
             $img `
-            -S . -B build -G Ninja -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch && cmake --build build
+            -S . -B build -G Ninja -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/pytorch/share/cmake/Torch && cmake --build build
 
   build-linux:
     runs-on: ubuntu-latest

@@ -19,7 +19,7 @@ shell ["cmd", "/S", "/C"]
 run call "c:\\program files\\microsoft visual studio\\2022\\buildtools\\common7\\tools\\vsdevcmd.bat" ^&^& \
     git clone https://github.com/Microsoft/vcpkg.git c:\\vcpkg ^&^& \
     c:\\vcpkg\\bootstrap-vcpkg.bat -disableMetrics ^&^& \
-    c:\\vcpkg\\vcpkg.exe install glfw3 tiff:x64-windows opencv4:x64-windows
+    c:\\vcpkg\\vcpkg.exe install opencv4:x64-windows
 
 # back to powershell
 shell ["powershell", "-command", "$erroractionpreference='stop';"]
