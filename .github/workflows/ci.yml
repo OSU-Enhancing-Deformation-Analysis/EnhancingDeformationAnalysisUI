@@ -37,7 +37,7 @@ jobs:
             -w "C:\app" `
             --entrypoint cmd.exe `
             $img `
-            /S /C "mkdir build && cmake -S . -B build -G ""Visual Studio 17 2022"" -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch && cmake --build build"
+            /S /C "mkdir build && cmake -S . -B build -G `\"Visual Studio 17 2022`\" -DUI_RELEASE:BOOL=true -DTorch_DIR=C:/vcpkg/installed/x64-windows/share/Torch && cmake --build build"
 
   build-linux:
     runs-on: ubuntu-latest
