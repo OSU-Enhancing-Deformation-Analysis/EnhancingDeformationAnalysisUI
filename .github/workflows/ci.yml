@@ -17,11 +17,14 @@ jobs:
       - uses: actions/checkout@v4
 
       # cache vcpkg sources & installed packages
-      - name: cache vcpkg
+      - name: cache vcpkg installs
+        if: always()
         uses: actions/cache@v3
         with:
-          path: c:/vcpkg
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          path: c:/vcpkg/installed/x64-windows
+          key: ${{ runner.os }}-vcpkg-installed-${{ hashFiles('**/vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-installed-
 
       # cache tensorflow c api
       - name: cache tensorflow c api
@@ -75,6 +78,7 @@ jobs:
           mkdir build
           cmake -S . -B build `
             -G Ninja `
+            -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake `
             -DUI_RELEASE:BOOL=true `
             -DTorch_DIR=c:/pytorch/share/cmake/Torch `
             -DOpenCV_DIR=c:/vcpkg/installed/x64-windows/share/opencv4 `
