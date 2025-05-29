@@ -15,6 +15,45 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: bootstrap & install c++ deps
+        shell: pwsh
+        continue-on-error: true
+        run: |
+          # bootstrap vcpkg if missing
+          if (-not (test-path c:/vcpkg/vcpkg.exe)) {
+            echo "installing vcpkg"
+            git clone https://github.com/microsoft/vcpkg.git c:/vcpkg
+            & c:/vcpkg/bootstrap-vcpkg.bat -disableMetrics
+          }
+
+          if (-not (test-path c:/vcpkg/installed/x64-windows/share/opencv4)) {
+            echo "installing opencv"
+            # install opencv4
+            & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
+          }
+
+      - name: download tensorflow c api
+        shell: pwsh
+        run: |
+          $url = "https://storage.googleapis.com/tensorflow/versions/2.18.1/libtensorflow-cpu-windows-x86_64.zip"
+          if (-not (test-path c:/tensorflow/include)) {
+            Invoke-WebRequest $url -OutFile tf.zip
+            Expand-Archive tf.zip -DestinationPath c:/tensorflow
+            rm tf.zip
+          }
+
+      - name: download libtorch c api
+        shell: pwsh
+        run: |
+          $url = "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcpu.zip"
+          if (-not (test-path c:/pytorch/lib)) {
+            Invoke-WebRequest $url -OutFile torch.zip
+            Expand-Archive torch.zip -DestinationPath c:/pytorch
+            rm torch.zip
+          }
+          ls c:/pytorch
+          ls c:/tensorflow
 
       # cache vcpkg sources & installed packages
       - name: cache vcpkg installs
@@ -39,38 +78,6 @@ jobs:
         with:
           path: c:/pytorch
           key: ${{ runner.os }}-torch-capi-2.7.0
-
-      - name: bootstrap & install c++ deps
-        shell: pwsh
-        run: |
-          # bootstrap vcpkg if missing
-          if (-not (test-path c:/vcpkg/vcpkg.exe)) {
-            git clone https://github.com/microsoft/vcpkg.git c:/vcpkg
-            & c:/vcpkg/bootstrap-vcpkg.bat -disableMetrics
-          }
-
-          # install opencv4
-          & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
-
-      - name: download tensorflow c api
-        shell: pwsh
-        run: |
-          $url = "https://storage.googleapis.com/tensorflow/versions/2.18.1/libtensorflow-cpu-windows-x86_64.zip"
-          if (-not (test-path c:/tensorflow/include)) {
-            Invoke-WebRequest $url -OutFile tf.zip
-            Expand-Archive tf.zip -DestinationPath c:/tensorflow
-            rm tf.zip
-          }
-
-      - name: download libtorch c api
-        shell: pwsh
-        run: |
-          $url = "https://download.pytorch.org/libtorch/cpu/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcpu.zip"
-          if (-not (test-path c:/pytorch/lib)) {
-            Invoke-WebRequest $url -OutFile torch.zip
-            Expand-Archive torch.zip -DestinationPath c:/pytorch
-            rm torch.zip
-          }
 
       - name: configure & build
         shell: pwsh
