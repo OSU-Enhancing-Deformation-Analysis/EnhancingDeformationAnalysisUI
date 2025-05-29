@@ -35,6 +35,13 @@ jobs:
             & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
           }
 
+      - name: cache vcpkg installed
+        if: ${{ always() }}
+        uses: actions/cache@v3
+        with:
+          path: c:/vcpkg/installed/x64-windows
+          key: ${{ runner.os }}-vcpkg-installed-${{ hashFiles('**/vcpkg.json') }}
+
       - name: download tensorflow c api
         shell: pwsh
         run: |
@@ -56,16 +63,6 @@ jobs:
           }
           ls c:/pytorch
           ls c:/tensorflow
-
-      # cache vcpkg sources & installed packages
-      - name: cache vcpkg installs
-        if: always()
-        uses: actions/cache@v3
-        with:
-          path: c:/vcpkg/installed/x64-windows
-          key: ${{ runner.os }}-vcpkg-installed-${{ hashFiles('**/vcpkg.json') }}
-          restore-keys: |
-            ${{ runner.os }}-vcpkg-installed-
 
       # cache tensorflow c api
       - name: cache tensorflow c api
