@@ -197,12 +197,13 @@ jobs:
             -Dtensorflow_INCLUDE_DIRS=c:/tensorflow/include `
             -Dtensorflow_LIBRARIES=c:/tensorflow/lib/tensorflow.lib
           cmake --build build
+          ls build
 
       # package
       - name: zip windows artifact
         shell: pwsh
         run: |
-          Compress-Archive -Path build\Release\* -DestinationPath ${{ github.ref_name }}-windows.zip
+          Compress-Archive -Path build\x64-Release\* -DestinationPath ${{ github.ref_name }}-windows.zip
 
       # publish
       - name: create github release
