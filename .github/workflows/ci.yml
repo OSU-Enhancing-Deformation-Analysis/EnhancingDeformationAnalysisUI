@@ -106,7 +106,6 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' }}
     steps:
       - name: set lowercase repository name
         id: repo_name
@@ -127,34 +126,85 @@ jobs:
             mkdir build && cd build && cmake .. -DUI_RELEASE:bool=true -DTorch_DIR=/opt/libtorch/share/cmake/Torch && make -j$(nproc)
           "
 
-  release:
-    needs: [ build-windows, build-linux ]
-    runs-on: ubuntu-latest
+  release-windows:
+    needs: build-windows
+    runs-on: windows-latest
     if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
     steps:
       - uses: actions/checkout@v4
-      - name: set lowercase repository name
-        id: repo_name
-        run: echo "REPO_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-      - name: login to ghcr
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        with:
+          submodules: true
 
-      - name: pull ci images
+      # restore caches
+      - name: restore vcpkg cache
+        id: cache-vcpkg
+        uses: actions/cache@v3
+        with:
+          path: c:/vcpkg/installed/x64-windows
+          key: ${{ runner.os }}-vcpkg-installed
+
+      - name: restore tensorflow c api cache
+        id: cache-tf
+        uses: actions/cache@v3
+        with:
+          path: c:/tensorflow
+          key: ${{ runner.os }}-tf-capi-2.18.1
+
+      - name: restore libtorch c api cache
+        id: cache-libtorch
+        uses: actions/cache@v3
+        with:
+          path: c:/pytorch
+          key: ${{ runner.os }}-torch-capi-2.7.0
+
+      # install deps on cache miss
+      - name: install c++ deps
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        shell: pwsh
         run: |
-          docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest
-          docker pull ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest
+          & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
 
-      - name: build windows release
-        shell: powershell
+      - name: download tensorflow c api
+        if: steps.cache-tf.outputs.cache-hit != 'true'
+        shell: pwsh
         run: |
-          docker run --rm -v ${PWD}:C:\app ghcr.io/${REPO_NAME_LOWER}/ci-image-windows:latest powershell -Command "mkdir build; cd build; cmake -G 'Visual Studio 17 2022' ..; cmake --build . --config Release"
-          powershell -Command "Compress-Archive -Path build\\Release\\* -DestinationPath deformationanalysisUI-${{ github.ref_name }}-windows.zip"
+          $url = "https://storage.googleapis.com/tensorflow/versions/2.18.1/libtensorflow-cpu-windows-x86_64.zip"
+          Invoke-WebRequest $url -OutFile tf.zip
+          Expand-Archive tf.zip -DestinationPath c:/tensorflow
+          Remove-Item tf.zip
 
-      - name: build linux release
+      - name: download libtorch c api
+        if: steps.cache-libtorch.outputs.cache-hit != 'true'
+        shell: pwsh
         run: |
-          docker run --rm -v $PWD:/app -w /app ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest bash -lc "mkdir build && cd build && cmake .. && make -j$(nproc)"
-          tar czf deformationanalysisUI-${{ github.ref_name }}-linux.tar.gz -C build deformationanalysisUI_executable*
+          $url = "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-2.7.0%2Bcpu.zip"
+          Invoke-WebRequest $url -OutFile torch.zip
+          Expand-Archive torch.zip -DestinationPath c:/pytorch
+          Remove-Item torch.zip
 
+      # configure & build in Release mode
+      - name: configure & build (release)
+        shell: pwsh
+        run: |
+          mkdir build
+          cmake -S . -B build `
+            -G "Visual Studio 17 2022" `
+            -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DUI_RELEASE:BOOL=true `
+            -DTorch_DIR=c:/pytorch/libtorch/share/cmake/Torch `
+            -DOpenCV_DIR=c:/vcpkg/installed/x64-windows/share/opencv4 `
+            -Dtensorflow_INCLUDE_DIRS=c:/tensorflow/include `
+            -Dtensorflow_LIBRARIES=c:/tensorflow/lib/tensorflow.lib
+          cmake --build build
+
+      # package
+      - name: zip windows artifact
+        shell: pwsh
+        run: |
+          Compress-Archive -Path build\Release\* -DestinationPath ${{ github.ref_name }}-windows.zip
+
+      # publish
       - name: create github release
         id: create_release
         uses: actions/create-release@v1
@@ -163,20 +213,13 @@ jobs:
           release_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upload windows asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: deformationanalysisUI-${{ github.ref_name }}-windows.zip
-          asset_name: deformationanalysisUI-${{ github.ref_name }}-windows.zip
+          asset_path: ${{ github.ref_name }}-windows.zip
+          asset_name: ${{ github.ref_name }}-windows.zip
           asset_content_type: application/zip
-
-      - name: upload linux asset
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: deformationanalysisUI-${{ github.ref_name }}-linux.tar.gz
-          asset_name: deformationanalysisUI-${{ github.ref_name }}-linux.tar.gz
-          asset_content_type: application/gzip
 
