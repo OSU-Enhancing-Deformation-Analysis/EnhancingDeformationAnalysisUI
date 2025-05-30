@@ -121,5 +121,7 @@ endif()
 
 if (UI_INCLUDE_TENSORFLOW)
 	message("-- Building with TensorFlow support")
+	message("-- TensorFlow libraries: ${tensorflow_LIBRARIES}")
+	message("-- TensorFlow include directories: ${tensorflow_INCLUDE_DIRS}")
 endif()
 

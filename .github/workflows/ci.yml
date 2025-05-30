@@ -18,30 +18,38 @@ jobs:
         with:
           submodules: true
       
-      - name: bootstrap & install c++ deps
-        shell: pwsh
-        continue-on-error: true
-        run: |
-          # bootstrap vcpkg if missing
-          if (-not (test-path c:/vcpkg/vcpkg.exe)) {
-            echo "installing vcpkg"
-            git clone https://github.com/microsoft/vcpkg.git c:/vcpkg
-            & c:/vcpkg/bootstrap-vcpkg.bat -disableMetrics
-          }
-
-          if (-not (test-path c:/vcpkg/installed/x64-windows/share/opencv4)) {
-            echo "installing opencv"
-            # install opencv4
-            & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
-          }
-
       - name: cache vcpkg installed
-        if: ${{ always() }}
+        id: cache-vcpkg
         uses: actions/cache@v3
         with:
           path: c:/vcpkg/installed/x64-windows
-          key: ${{ runner.os }}-vcpkg-installed-${{ hashFiles('**/vcpkg.json') }}
+          key: ${{ runner.os }}-vcpkg-installed
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-installed
 
+      - name: bootstrap & install c++ deps
+        shell: pwsh
+        continue-on-error: true
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+        run: |
+          echo "installing opencv"
+          & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
+      
+      - name: immediate cache
+        if: always()
+        with:
+          path: c:/vcpkg/installed/x64-windows
+          key: ${{ runner.os }}-vcpkg-installed
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-installed
+
+      # cache tensorflow c api
+      - name: cache tensorflow c api
+        uses: actions/cache@v3
+        with:
+          path: c:/tensorflow
+          key: ${{ runner.os }}-tf-capi-2.18.1
+      
       - name: download tensorflow c api
         shell: pwsh
         run: |
@@ -52,6 +60,13 @@ jobs:
             rm tf.zip
           }
 
+      # cache pytorch c api
+      - name: cache libtorch c api
+        uses: actions/cache@v3
+        with:
+          path: c:/pytorch
+          key: ${{ runner.os }}-torch-capi-2.7.0
+
       - name: download libtorch c api
         shell: pwsh
         run: |
@@ -61,23 +76,10 @@ jobs:
             Expand-Archive torch.zip -DestinationPath c:/pytorch
             rm torch.zip
           }
+          # debug
           ls c:/pytorch
           ls c:/tensorflow
-
-      # cache tensorflow c api
-      - name: cache tensorflow c api
-        uses: actions/cache@v3
-        with:
-          path: c:/tensorflow
-          key: ${{ runner.os }}-tf-capi-2.18.1
-
-      # cache pytorch c api
-      - name: cache libtorch c api
-        uses: actions/cache@v3
-        with:
-          path: c:/pytorch
-          key: ${{ runner.os }}-torch-capi-2.7.0
-
+      
       - name: configure & build
         shell: pwsh
         run: |
@@ -88,8 +90,8 @@ jobs:
             -DUI_RELEASE:BOOL=true `
             -DTorch_DIR=c:/pytorch/libtorch/share/cmake/Torch `
             -DOpenCV_DIR=c:/vcpkg/installed/x64-windows/share/opencv4 `
-            -DTENSORFLOW_INCLUDE_DIR=c:/tensorflow/include `
-            -DTENSORFLOW_LIBRARY=c:/tensorflow/lib/tensorflow.lib
+            -DTENSORFLOW_INCLUDE_DIRS=c:/tensorflow/include `
+            -DTENSORFLOW_LIBRARIES=c:/tensorflow/lib/tensorflow.lib
           cmake --build build
 
   build-linux:
