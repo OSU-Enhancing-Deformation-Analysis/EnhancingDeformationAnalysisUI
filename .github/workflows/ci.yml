@@ -37,6 +37,7 @@ jobs:
       
       - name: immediate cache
         if: always()
+        uses: actions/cache@v3
         with:
           path: c:/vcpkg/installed/x64-windows
           key: ${{ runner.os }}-vcpkg-installed
