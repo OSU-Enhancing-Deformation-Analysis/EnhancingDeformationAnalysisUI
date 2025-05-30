@@ -24,23 +24,23 @@ jobs:
         uses: actions/cache@v3
         with:
           path: c:/vcpkg/installed/x64-windows
-          key: ${{ runner.os }}-vcpkg-installed
+          key: windows-vcpkg-installed
           restore-keys: |
-            ${{ runner.os }}-vcpkg-installed
+            windows-vcpkg-installed-
 
       - name: restore tensorflow c api cache
         id: cache-tf
         uses: actions/cache@v3
         with:
           path: c:/tensorflow
-          key: ${{ runner.os }}-tf-capi-2.18.1
+          key: windows-tf-capi-2.18.1
 
       - name: restore libtorch c api cache
         id: cache-libtorch
         uses: actions/cache@v3
         with:
           path: c:/pytorch
-          key: ${{ runner.os }}-torch-capi-2.7.0
+          key: windows-torch-capi-2.7.0
 
       # install deps only on cache miss
       - name: install c++ deps
@@ -90,23 +90,23 @@ jobs:
         uses: actions/cache@v3
         with:
           path: c:/vcpkg/installed/x64-windows
-          key: ${{ runner.os }}-vcpkg-installed
+          key: windows-vcpkg-installed
           restore-keys: |
-            ${{ runner.os }}-vcpkg-installed
+            windows-vcpkg-installed-
 
       - name: save tensorflow c api cache
         if: always()
         uses: actions/cache@v3
         with:
           path: c:/tensorflow
-          key: ${{ runner.os }}-tf-capi-2.18.1
+          key: windows-tf-capi-2.18.1
 
       - name: save libtorch c api cache
         if: always()
         uses: actions/cache@v3
         with:
           path: c:/pytorch
-          key: ${{ runner.os }}-torch-capi-2.7.0
+          key: windows-torch-capi-2.7.0
 
   build-linux:
     runs-on: ubuntu-latest
@@ -145,23 +145,23 @@ jobs:
         uses: actions/cache@v3
         with:
           path: c:/vcpkg/installed/x64-windows
-          key: ${{ runner.os }}-vcpkg-installed
+          key: windows-vcpkg-installed
           restore-keys: |
-            ${{ runner.os }}-vcpkg-installed
+            windows-vcpkg-installed-
 
       - name: restore tensorflow c api cache
         id: cache-tf
         uses: actions/cache@v3
         with:
           path: c:/tensorflow
-          key: ${{ runner.os }}-tf-capi-2.18.1
+          key: windows-tf-capi-2.18.1
 
       - name: restore libtorch c api cache
         id: cache-libtorch
         uses: actions/cache@v3
         with:
           path: c:/pytorch
-          key: ${{ runner.os }}-torch-capi-2.7.0
+          key: windows-torch-capi-2.7.0
 
       # install deps on cache miss
       - name: install c++ deps
@@ -230,4 +230,3 @@ jobs:
           asset_path: ${{ github.ref_name }}-windows.zip
           asset_name: ${{ github.ref_name }}-windows.zip
           asset_content_type: application/zip
-
