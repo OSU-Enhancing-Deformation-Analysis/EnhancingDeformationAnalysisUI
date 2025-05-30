@@ -41,7 +41,7 @@ jobs:
           key: ${{ runner.os }}-torch-capi-2.7.0
 
       # install deps only on cache miss
-      - name: bootstrap & install c++ deps
+      - name: install c++ deps
         if: steps.cache-vcpkg.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
@@ -71,6 +71,7 @@ jobs:
       # configure & build
       - name: configure & build
         shell: pwsh
+        # to cache even if build fails
         continue-on-error: true
         run: |
           mkdir build
@@ -80,8 +81,8 @@ jobs:
             -DUI_RELEASE:BOOL=true `
             -DTorch_DIR=c:/pytorch/libtorch/share/cmake/Torch `
             -DOpenCV_DIR=c:/vcpkg/installed/x64-windows/share/opencv4 `
-            -DTENSORFLOW_INCLUDE_DIRS=c:/tensorflow/include `
-            -DTENSORFLOW_LIBRARIES=c:/tensorflow/lib/tensorflow.lib
+            -Dtensorflow_INCLUDE_DIRS=c:/tensorflow/include `
+            -Dtensorflow_LIBRARIES=c:/tensorflow/lib/tensorflow.lib
           cmake --build build
 
       # save caches regardless of build success
