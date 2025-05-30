@@ -203,7 +203,7 @@ jobs:
       - name: zip windows artifact
         shell: pwsh
         run: |
-          Compress-Archive -Path build\x64-Release\* -DestinationPath ${{ github.ref_name }}-windows.zip
+          Compress-Archive -Path build\x64\* -DestinationPath ${{ github.ref_name }}-windows.zip
 
       # publish
       - name: create github release
