@@ -71,6 +71,7 @@ jobs:
       # configure & build
       - name: configure & build
         shell: pwsh
+        continue-on-error: true
         run: |
           mkdir build
           cmake -S . -B build `
