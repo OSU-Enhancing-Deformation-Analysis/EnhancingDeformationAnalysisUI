@@ -25,6 +25,8 @@ jobs:
         with:
           path: c:/vcpkg/installed/x64-windows
           key: ${{ runner.os }}-vcpkg-installed
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-installed
 
       - name: restore tensorflow c api cache
         id: cache-tf
@@ -89,6 +91,8 @@ jobs:
         with:
           path: c:/vcpkg/installed/x64-windows
           key: ${{ runner.os }}-vcpkg-installed
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-installed
 
       - name: save tensorflow c api cache
         if: always()
@@ -142,6 +146,8 @@ jobs:
         with:
           path: c:/vcpkg/installed/x64-windows
           key: ${{ runner.os }}-vcpkg-installed
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-installed
 
       - name: restore tensorflow c api cache
         id: cache-tf
