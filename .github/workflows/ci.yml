@@ -235,4 +235,3 @@ jobs:
           asset_path: ${{ github.ref_name }}-windows.zip
           asset_name: ${{ github.ref_name }}-windows.zip
           asset_content_type: application/zip
-
