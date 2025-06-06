@@ -36,7 +36,7 @@ bool DeformationAnalysisInterface::RunModel(std::vector<uint32_t *> &images, int
 	// (1 channel) input: data format: float between [0, 255] output: 2
 	// images, each 1x256x256 (total output batchx2x256x256) output: data
 	// format: float between [-2, 2]
-	auto model = torch::jit::load("assets/models/batch-m4-combo.pt");
+	auto model = torch::jit::load("assets/models/m5-combo.pt");
 	model.to(dev);
 	model.eval();
 
