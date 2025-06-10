@@ -8,6 +8,9 @@
 #include <ImGuiImpl.h>
 #include <utils.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <../libs/stb_image/stb_image.h>
+
 Application::Application()
     : m_window(nullptr), m_showWelcome(true), m_assetsFound(false),
       m_dockspaceID(0) {}
@@ -44,13 +47,14 @@ bool Application::InitializeGLFW() {
 		return false;
 	}
 
+	// Set GLFW window hints for OpenGL context on MacOS
 #ifdef __APPLE__
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for macOS
 #endif
-
+	
 #ifdef UI_RELEASE
 	m_window = glfwCreateWindow(
 	    1400, 1050, "Enhancing Deformation Analysis UI", NULL, NULL);
@@ -59,6 +63,16 @@ bool Application::InitializeGLFW() {
 				    "Enhancing Deformation Analysis UI (DEBUG)",
 				    NULL, NULL);
 #endif
+
+	int w, h, c;
+	unsigned char *image_data = stbi_load("assets/icon/EnhancingDeformationAnalysisUI_Icon.png", &w, &h, &c, 4);
+	if (image_data) {
+		GLFWimage icon_image;
+		icon_image.width = w;
+		icon_image.height = h;
+		icon_image.pixels = image_data;
+		glfwSetWindowIcon(m_window, 1, &icon_image);
+	}
 
 	glfwMakeContextCurrent(m_window);
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);

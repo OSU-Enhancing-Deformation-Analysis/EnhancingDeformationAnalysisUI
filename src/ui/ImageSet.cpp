@@ -16,8 +16,7 @@
 #include <format>
 #include <string>
 
-#define CALC_SLIDER_SIZE(text) \
-	(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(#text).x) - 5
+#define CALC_SLIDER_SIZE(text) (ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(#text).x) - 5
 
 int ImageSet::m_id_counter = 0;
 
@@ -503,10 +502,11 @@ void ImageSet::DisplayImageAnalysisTab() {
 			ImGui::EndTabItem();
 			return;
 		}
-		
+
 		// Ensure current frame is within bounds
-		m_analysis_current_frame = std::clamp(m_analysis_current_frame, 0, (int)m_processed_textures.size() - 1);
-		
+		m_analysis_current_frame =
+		    std::clamp(m_analysis_current_frame, 0, (int)m_processed_textures.size() - 1);
+
 		if (s_comparison_image == nullptr ||
 		    s_ref_image_width * s_ref_image_height !=
 			m_processed_textures[0]->GetWidth() * m_processed_textures[0]->GetHeight()) {
@@ -544,7 +544,7 @@ void ImageSet::DisplayImageAnalysisTab() {
 
 		// Create layout with image on left, controls and histogram on right
 		ImGui::BeginChild("AnalysisControls", ImVec2(250, 0));
-		
+
 		ImGui::SeparatorText("Frame Navigation");
 		if (m_processed_textures.size() > 1) {
 			// Frame slider with text showing current/total frames
@@ -576,7 +576,8 @@ void ImageSet::DisplayImageAnalysisTab() {
 			auto size = ImVec2(220, 200);
 			char label[256];
 			sprintf(label, "Frame %d Histogram", m_analysis_current_frame);
-			ImGui::PlotHistogram(label, &histograms[m_analysis_current_frame][0], 256, 0, NULL, 0.0f, 1.0f, size);
+			ImGui::PlotHistogram(label, &histograms[m_analysis_current_frame][0], 256, 0, NULL, 0.0f, 1.0f,
+					     size);
 		}
 
 		ImGui::SeparatorText("Region Analysis");
@@ -586,17 +587,19 @@ void ImageSet::DisplayImageAnalysisTab() {
 				m_region_selected = false;
 			}
 		}
-		
+
 		if (m_region_selected) {
-			ImVec2 region_size = ImVec2(abs(m_region_end.x - m_region_start.x), abs(m_region_end.y - m_region_start.y));
+			ImVec2 region_size =
+			    ImVec2(abs(m_region_end.x - m_region_start.x), abs(m_region_end.y - m_region_start.y));
 			ImGui::Text("Region: %.0fx%.0f pixels", region_size.x, region_size.y);
 			ImGui::Text("Region SNR: %.2f", m_region_snr);
-			
+
 			if (!m_region_histogram.empty()) {
 				auto size = ImVec2(220, 150);
-				ImGui::PlotHistogram("Region Histogram", &m_region_histogram[0], 256, 0, NULL, 0.0f, 1.0f, size);
+				ImGui::PlotHistogram("Region Histogram", &m_region_histogram[0], 256, 0, NULL, 0.0f,
+						     1.0f, size);
 			}
-			
+
 			if (ImGui::Button("Clear Region")) {
 				m_region_selected = false;
 				m_region_selection_active = false;
@@ -625,77 +628,77 @@ void ImageSet::DisplayImageAnalysisTab() {
 
 		ImGui::SameLine();
 		ImGui::BeginChild("ImageView", ImVec2(0, 0));
-		
+
 		// Display the current frame
 		ImGui::Text("Current Frame: %d", m_analysis_current_frame);
 		ImGui::Separator();
-		
+
 		// Get image dimensions and position
 		auto image_size = ImVec2(m_processed_textures[m_analysis_current_frame]->GetWidth(),
 					 m_processed_textures[m_analysis_current_frame]->GetHeight());
 		ImVec2 image_pos = ImGui::GetCursorScreenPos();
-		
+
 		// Display the image
 		ImGui::Image((ImTextureID)m_processed_textures[m_analysis_current_frame]->GetID(), image_size);
-		
+
 		// Handle region selection on the image
 		if (m_region_selection_active && ImGui::IsItemHovered()) {
-			ImGuiIO& io = ImGui::GetIO();
+			ImGuiIO &io = ImGui::GetIO();
 			ImVec2 mouse_pos = ImVec2(io.MousePos.x - image_pos.x, io.MousePos.y - image_pos.y);
-			
+
 			// Clamp mouse position to image bounds
 			mouse_pos.x = std::max(0.0f, std::min(mouse_pos.x, image_size.x));
 			mouse_pos.y = std::max(0.0f, std::min(mouse_pos.y, image_size.y));
-			
+
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 				m_region_start = mouse_pos;
 				m_region_end = mouse_pos;
 			}
-			
+
 			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
 				m_region_end = mouse_pos;
 			}
-			
+
 			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
 				m_region_selection_active = false;
 				m_region_selected = true;
-				
+
 				// Calculate region analysis
-				ImVec2 roi_min = ImVec2(std::min(m_region_start.x, m_region_end.x), 
-						       std::min(m_region_start.y, m_region_end.y));
-				ImVec2 roi_max = ImVec2(std::max(m_region_start.x, m_region_end.x), 
-						       std::max(m_region_start.y, m_region_end.y));
-				
+				ImVec2 roi_min = ImVec2(std::min(m_region_start.x, m_region_end.x),
+							std::min(m_region_start.y, m_region_end.y));
+				ImVec2 roi_max = ImVec2(std::max(m_region_start.x, m_region_end.x),
+							std::max(m_region_start.y, m_region_end.y));
+
 				int roi_width = std::max(1.0f, roi_max.x - roi_min.x);
 				int roi_height = std::max(1.0f, roi_max.y - roi_min.y);
-				
+
 				// Get current frame data
-				uint32_t* frame_data = (uint32_t*)malloc(image_size.x * image_size.y * 4);
+				uint32_t *frame_data = (uint32_t *)malloc(image_size.x * image_size.y * 4);
 				m_processed_textures[m_analysis_current_frame]->GetData(frame_data);
-				
+
 				// Analyze the selected region
-				ImageAnalysis::AnalyzeRegion(frame_data, image_size.x, image_size.y,
-							    roi_min.x, roi_min.y, roi_width, roi_height,
-							    m_region_histogram, m_region_snr);
-				
+				ImageAnalysis::AnalyzeRegion(frame_data, image_size.x, image_size.y, roi_min.x,
+							     roi_min.y, roi_width, roi_height, m_region_histogram,
+							     m_region_snr);
+
 				free(frame_data);
 			}
 		}
-		
+
 		// Draw selection rectangle
 		if (m_region_selection_active || m_region_selected) {
-			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			ImDrawList *draw_list = ImGui::GetWindowDrawList();
 			ImVec2 rect_min = ImVec2(image_pos.x + std::min(m_region_start.x, m_region_end.x),
 						 image_pos.y + std::min(m_region_start.y, m_region_end.y));
 			ImVec2 rect_max = ImVec2(image_pos.x + std::max(m_region_start.x, m_region_end.x),
 						 image_pos.y + std::max(m_region_start.y, m_region_end.y));
-			
+
 			ImU32 color = m_region_selected ? IM_COL32(0, 255, 0, 255) : IM_COL32(255, 255, 0, 255);
 			draw_list->AddRect(rect_min, rect_max, color, 0.0f, 0, 2.0f);
 		}
-		
+
 		ImGui::EndChild();
-		
+
 		ImGui::EndTabItem();
 	}
 }

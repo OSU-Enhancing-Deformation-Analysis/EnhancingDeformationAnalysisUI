@@ -32,6 +32,9 @@ SET(tiff-tests OFF CACHE BOOL "libtiff lib only")
 SET(tiff-contrib OFF CACHE BOOL "libtiff lib only")
 SET(tiff-docs OFF CACHE BOOL "libtiff lib only")
 SET(tiff-install OFF CACHE BOOL "libtiff lib only")
+SET(jpeg OFF CACHE BOOL "libtiff lib only")
+SET(lzma OFF CACHE BOOL "libtiff lib only")
+SET(zlib OFF CACHE BOOL "libtiff lib only")
 
 find_package(OpenCV REQUIRED)
 
