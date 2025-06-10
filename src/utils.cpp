@@ -12,7 +12,7 @@
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN // i love this
-#define NOMINMAX	    // i hate this
+#define NOMINMAX			// i hate this
 #include <shobjidl.h>
 #include <windows.h>
 #endif
