@@ -19,7 +19,11 @@ Application::~Application() { Shutdown(); }
 
 bool Application::Initialize() {
 #ifndef UI_RELEASE
+#ifdef _WIN32
+	std::filesystem::current_path("../../.././");
+#else
 	std::filesystem::current_path("../");
+#endif
 #endif // UI_RELEASE
 
 	// Verify assets folder existence
@@ -176,6 +180,8 @@ void Application::RenderUI() {
 
 void Application::RenderWelcomeScreen() {
 	// Styled title
+	// not sure if this is really needed, but it makes it look (kinda) polished
+	// the font is just a little fuzzy
 	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.28f, 0.56f, 1.0f, 1.0f));
 	ImGui::SetWindowFontScale(1.5f);
 	ImGui::SetCursorPosX(

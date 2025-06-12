@@ -428,8 +428,9 @@ void ImageSet::DisplayImageComparisonTab() {
 			ImVec2 centered_pos = ImVec2(cursor_pos.x + (avail.x - display_size.x) * 0.5f, cursor_pos.y);
 			ImGui::SetCursorPos(centered_pos);
 
+			ui::DisplayTextureWithInfo(m_textures[m_current_frame], display_size);
 			// Display image
-			ImGui::Image(m_textures[m_current_frame]->GetID(), display_size);
+			//ImGui::Image(m_textures[m_current_frame]->GetID(), display_size);
 
 			// Image information
 			ImGui::SetCursorPosX(cursor_pos.x);
