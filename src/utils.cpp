@@ -508,8 +508,22 @@ bool WriteGIFOfImageSet(const char *path, std::vector<std::shared_ptr<Texture>> 
 	return true;
 }
 
+// todo: fix these functions to be good, and not bad. (add better names + headers)
 bool WriteCSV(const char *path, std::vector<std::vector<std::vector<float>>> &data) {
 	FILE *f = fopen(path, "w");
+	for (int i = 0; i < data.size(); i++) {
+		if (data[i].empty() || data[i][0].empty()) {
+			printf("Data at index %d is empty, skipping\n", i);
+			continue;
+		}
+		if (i > 0)
+			fprintf(f, "\n"); // separate frames with a newline
+		for (int j = 0; j < data[i][0].size(); j++) {
+			fprintf(f, "%f", data[i][0][j]);
+			if (j < data[i][0].size() - 1)
+				fprintf(f, ",");
+		}
+	}
 	if (!f) {
 		printf("Could not open file %s\n", path);
 		return false;

@@ -429,14 +429,6 @@ void ImageSet::DisplayImageComparisonTab() {
 			ImGui::SetCursorPos(centered_pos);
 
 			ui::DisplayTextureWithInfo(m_textures[m_current_frame], display_size);
-			// Display image
-			//ImGui::Image(m_textures[m_current_frame]->GetID(), display_size);
-
-			// Image information
-			ImGui::SetCursorPosX(cursor_pos.x);
-			ImGui::TextUnformatted(
-			    ("Size: " + std::to_string((int)img_size.x) + "x" + std::to_string((int)img_size.y))
-				.c_str());
 		}
 
 		ImGui::NextColumn();
@@ -459,14 +451,7 @@ void ImageSet::DisplayImageComparisonTab() {
 			ImVec2 centered_pos = ImVec2(cursor_pos.x + (avail.x - display_size.x) * 0.5f, cursor_pos.y);
 			ImGui::SetCursorPos(centered_pos);
 
-			// Display image
-			ImGui::Image(m_processed_textures[m_current_frame]->GetID(), display_size);
-
-			// Image information
-			ImGui::SetCursorPosX(cursor_pos.x);
-			ImGui::TextUnformatted(
-			    ("Size: " + std::to_string((int)img_size.x) + "x" + std::to_string((int)img_size.y))
-				.c_str());
+			ui::DisplayTextureWithInfo(m_processed_textures[m_current_frame], display_size);
 		}
 
 		ImGui::Columns(1);
@@ -824,7 +809,7 @@ void ImageSet::DisplayFeatureTrackingTab() {
 			}
 			if (ImGui::Button("Save To")) {
 				auto path = utils::SaveFileDialog(".", "Save Widths CSV", "csv");
-				write_success = io::WriteCSV(path.c_str(), m_widths);
+				write_success = io::WriteCSV(path.c_str(), m_last_tracked_points, m_manual_widths);
 				if (!write_success) {
 					ImGui::TextColored(ImVec4(1, 0, 0, 1), "Error saving widths!");
 				}
