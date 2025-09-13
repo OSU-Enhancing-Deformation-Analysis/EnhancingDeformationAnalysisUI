@@ -59,7 +59,7 @@ bool Application::InitializeGLFW() {
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for macOS
 #endif
 	
-#ifdef UI_RELEASE
+#ifdef EDA_GUI_RELEASE
 	m_window = glfwCreateWindow(
 	    1400, 1050, "Enhancing Deformation Analysis UI", NULL, NULL);
 #else
@@ -76,6 +76,7 @@ bool Application::InitializeGLFW() {
 		icon_image.height = h;
 		icon_image.pixels = image_data;
 		glfwSetWindowIcon(m_window, 1, &icon_image);
+		STBI_FREE(image_data);
 	}
 
 	glfwMakeContextCurrent(m_window);
@@ -131,7 +132,7 @@ void Application::Run() {
 		m_dockspaceID = ImGui::DockSpaceOverViewport();
 
 		// Show demo window in debug builds
-#ifndef UI_RELEASE
+#ifndef EDA_GUI_RELEASE
 		ImGui::ShowDemoWindow();
 #endif
 
@@ -319,6 +320,7 @@ void Application::Shutdown() {
 	// Clean up image sets
 	m_imageSets.clear();
 
+	ImGuiShutdown();
 	// Destroy GLFW window and terminate GLFW
 	if (m_window) {
 		glfwDestroyWindow(m_window);

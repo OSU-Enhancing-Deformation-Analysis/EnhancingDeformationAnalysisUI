@@ -4,7 +4,7 @@ file(GLOB GUI_SRC CONFIGURE_DEPENDS
   "../../libs/glad/src/*.c"
   "../../libs/imgui/*.cpp")
 
-# gui should be windowed on windows
+# gui should be windowed w/ no cmd on windows
 if (WIN32)
   add_executable(eda-gui WIN32 ${GUI_SRC})
 else()
@@ -43,15 +43,14 @@ if (EDA_USE_VENDORED_DEPS)
     SYSTEM
   )
   FetchContent_MakeAvailable(libtiff)
-  target_link_libraries(eda-gui PRIVATE tiff)        # or tiffxx if you use the c++ api
+  target_link_libraries(eda-gui PRIVATE tiff)
 else()
   find_package(TIFF REQUIRED)
   target_link_libraries(eda-gui PRIVATE TIFF::TIFF)  # imported target from find_package
 endif()
 
-
 # helpful defines for UI titlepaths, etc.
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
+if (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" OR CMAKE_BUILD_TYPE STREQUAL "Release")
   target_compile_definitions(eda-gui PRIVATE EDA_GUI_RELEASE)
 else()
   target_compile_definitions(eda-gui PRIVATE EDA_GUI_DEBUG)

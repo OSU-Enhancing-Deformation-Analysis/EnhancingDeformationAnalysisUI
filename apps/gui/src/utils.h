@@ -102,7 +102,7 @@ class Profiler {
 	bool stopped = false;
 };
 
-#ifdef UI_PROFILE
+#ifdef EDA_PROFILE
 #define PROFILE_FUNCTION(name) Profiler profiler_##name(__FUNCTION__);
 #define PROFILE_SCOPE(name) Profiler profiler_##name(#name);
 #else
