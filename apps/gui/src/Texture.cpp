@@ -4,11 +4,14 @@
 
 #include <glad/glad.h>
 
-Texture::Texture() { glGenTextures(1, &m_id); }
+Texture::Texture() {
+	m_data = nullptr;
+	glGenTextures(1, &m_id);
+}
 
 Texture::~Texture() { glDeleteTextures(1, &m_id); }
 
-void Texture::Load(const uint32_t *data, int width, int height) {
+void Texture::Load(const unsigned int *data, int width, int height) {
 	if (m_loaded && m_width == width && m_height == height) {
 		Bind();
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, data);
@@ -56,7 +59,7 @@ void Texture::Load(const char *filename) {
 	m_loaded = true;
 }
 
-void Texture::GetData(uint32_t *data) {
+void Texture::GetData(unsigned int *data) const {
 	PROFILE_FUNCTION();
 
 	Bind();
@@ -67,6 +70,6 @@ void Texture::GetData(uint32_t *data) {
 	Unbind();
 }
 
-void Texture::Bind() { glBindTexture(GL_TEXTURE_2D, m_id); }
+void Texture::Bind() const { glBindTexture(GL_TEXTURE_2D, m_id); }
 
-void Texture::Unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
+void Texture::Unbind() const { glBindTexture(GL_TEXTURE_2D, 0); }

@@ -6,9 +6,9 @@ class Texture {
 	~Texture();
 	void Load(const unsigned int *data, int width, int height);
 	void Load(const char *filename);
-	void GetData(unsigned int *data);
-	void Bind();
-	void Unbind();
+	void GetData(unsigned int *data) const;
+	void Bind() const;
+	void Unbind() const;
 	unsigned int GetID() const { return m_id; }
 	int GetWidth() const { return m_width; }
 	int GetHeight() const { return m_height; }
