@@ -29,7 +29,8 @@ git submodule update --init
 
 - CMake ≥ 3.5  
 - OpenCV ≥ 4.0.0 (`OpenCV_DIR` must point to `OpenCVConfig.cmake`)  
-- TensorFlow C API  
+- TensorFlow C API
+- PyTorch C API
 - CUDA/cuDNN for GPU acceleration  
   - Windows: CUDA 11.x, cuDNN 8.x  
   - Linux: CUDA 12.x, cuDNN 9.x  
@@ -45,7 +46,7 @@ cmake ..
 make -j$(nproc)
 ```
 
-Set this for CUDA:
+I needed this for CUDA support:
 
 ```bash
 export XLA_FLAGS="--xla_gpu_cuda_data_dir=/usr/lib/cuda"
@@ -53,10 +54,11 @@ export XLA_FLAGS="--xla_gpu_cuda_data_dir=/usr/lib/cuda"
 
 **Windows**
 
-THIS WILL BE IMPROVED SOON, setup.py DOESN'T INSTALL DEPENDENCIES CORRECTLY
-1. Run `setup.py` in the repo root.  
-2. Open the solution in Visual Studio.  
-3. Set `eda-gui.exe` as startup project and press F5.  
+Compilation only tested using Visual Studio 2022, but it should work with VS Code and CMake separately.
+
+1. ~Run `setup.py` in the repo root.~ Manually install dependencies listed above, and make sure to add Tensorflow, PyTorch, and OpenCV to the PATH.
+2. Open the project folder within Visual Studio and allow CMake to automatically configure the project.
+3. Set `eda-gui.exe` as startup project and press F5 to compile.
 
 ## Usage
 
