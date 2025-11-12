@@ -1,0 +1,1 @@
+/usr/local/apps/gcc/11.5/bin/g++ -O3 -DNDEBUG CMakeFiles/tiffgt.dir/tiffgt.c.o -o tiffgt  ../libtiff/libtiff.a /usr/lib64/libGL.so /usr/lib64/libglut.so /usr/lib64/libz.so /usr/lib64/libjpeg.so /usr/lib64/liblzma.so /usr/lib64/libzstd.so /usr/lib64/libwebp.so /usr/lib64/libm.so /usr/lib64/libXmu.so /usr/lib64/libXi.so

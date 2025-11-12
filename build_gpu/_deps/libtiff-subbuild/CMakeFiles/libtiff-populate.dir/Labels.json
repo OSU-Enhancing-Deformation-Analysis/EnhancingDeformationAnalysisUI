@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/CMakeFiles/libtiff-populate"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/CMakeFiles/libtiff-populate.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/CMakeFiles/libtiff-populate-complete.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-build.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-configure.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-download.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-install.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-mkdir.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-patch.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-test.rule"
+		},
+		{
+			"file" : "/nfs/stak/users/gemmak/CS461/EnhancingDeformationAnalysisUI/build_gpu/_deps/libtiff-subbuild/libtiff-populate-prefix/src/libtiff-populate-stamp/libtiff-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"libtiff-populate"
+		],
+		"name" : "libtiff-populate"
+	}
+}

@@ -1,0 +1,1 @@
+/usr/local/apps/gcc/11.5/bin/g++ -O3 -DNDEBUG CMakeFiles/strip_rw.dir/strip_rw.c.o CMakeFiles/strip_rw.dir/strip.c.o CMakeFiles/strip_rw.dir/test_arrays.c.o -o strip_rw  ../libtiff/libtiff.a /usr/lib64/libz.so /usr/lib64/libjpeg.so /usr/lib64/liblzma.so /usr/lib64/libzstd.so /usr/lib64/libwebp.so /usr/lib64/libm.so

@@ -1,0 +1,11 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/nfs/stak/a1/rhel5apps/spack/opt-el8/spack/linux-sandybridge/cmake-3.31.8-63trq3jyfruewhi5wdjkab43vuk4rxla/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:16 (project)"
+    message: |
+      The system is: Linux - 4.18.0-477.27.1.el8_8.x86_64 - x86_64
+...

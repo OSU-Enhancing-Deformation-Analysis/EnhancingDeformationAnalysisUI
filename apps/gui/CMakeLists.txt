@@ -32,6 +32,43 @@ target_link_libraries(eda-gui
   PRIVATE deformation_core
           glfw
           ${OpenCV_LIBS})
+ 
+# The added code
+
+
+
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("
+    #include <format>
+    int main() { std::format(\"{}\", 1); }
+" HAS_STD_FORMAT)
+
+if (NOT HAS_STD_FORMAT)
+    message(WARNING "⚠️ <format> not available; falling back to fmtlib for GUI")
+    target_link_libraries(eda-gui PRIVATE fmt::fmt)
+    target_include_directories(eda-gui PRIVATE ${CMAKE_SOURCE_DIR}/libs/fmt/include)
+    target_compile_definitions(eda-gui PRIVATE USE_FMT_FALLBACK=1)
+endif()
+
+# --- Manually link CUPTI for CUDA 11.8 on OSU HPC ---
+set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/apps/cuda/11.8")
+
+set(CUPTI_LIB_PATH "${CUDA_TOOLKIT_ROOT_DIR}/extras/CUPTI/lib64/libcupti.so")
+set(CUPTI_INCLUDE_PATH "${CUDA_TOOLKIT_ROOT_DIR}/extras/CUPTI/include")
+
+if (EXISTS "${CUPTI_LIB_PATH}")
+    message(STATUS "✅ Found CUPTI at: ${CUPTI_LIB_PATH}")
+    target_link_libraries(eda-gui PRIVATE
+        ${CUPTI_LIB_PATH}
+        ${CUDA_TOOLKIT_ROOT_DIR}/lib64/libcudart.so
+    )
+    target_include_directories(eda-gui PRIVATE ${CUPTI_INCLUDE_PATH})
+else()
+    message(WARNING "⚠ CUPTI not found at ${CUPTI_LIB_PATH} — profiler symbols may remain unresolved.")
+endif()
+# --- End CUPTI section ---
+
+# The end of added code
 
 # vendored libtiff
 if (EDA_USE_VENDORED_DEPS)

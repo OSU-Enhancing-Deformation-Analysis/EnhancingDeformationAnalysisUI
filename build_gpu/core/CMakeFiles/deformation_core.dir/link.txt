@@ -1,0 +1,2 @@
+/usr/bin/ar qc libdeformation_core.a CMakeFiles/deformation_core.dir/src/CrackDetector.cpp.o CMakeFiles/deformation_core.dir/src/DeformationAnalysisInterface.cpp.o CMakeFiles/deformation_core.dir/src/DenoiseInterface.cpp.o CMakeFiles/deformation_core.dir/src/FeatureTracker.cpp.o CMakeFiles/deformation_core.dir/src/ImageAnalysis.cpp.o CMakeFiles/deformation_core.dir/src/Stabilizer.cpp.o CMakeFiles/deformation_core.dir/src/ThreadPool.cpp.o CMakeFiles/deformation_core.dir/src/Tiler.cpp.o
+/usr/bin/ranlib libdeformation_core.a

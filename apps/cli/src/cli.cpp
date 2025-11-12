@@ -1,7 +1,15 @@
 #include <algorithm>
 #include <charconv>
 #include <filesystem>
-#include <format>
+#if defined(USE_STD_FORMAT)
+  #include <format>
+  namespace fmt_ns = std;
+#elif defined(USE_FMTLIB)
+  #include <fmt/core.h>
+  namespace fmt_ns = fmt;
+#else
+  #error "No format library available."
+#endif
 #include <iostream>
 #include <optional>
 #include <string>
@@ -37,13 +45,13 @@ int to_int(string_view s, string_view what) {
 	auto *first = s.data();
 	auto *last = s.data() + s.size();
 	if (std::from_chars(first, last, v).ec != std::errc{})
-		die(std::format("invalid integer for {}: {}", what, s));
+		die(fmt_ns::format("invalid integer for {}: {}", what, s));
 	return v;
 }
 
 string_view take_value(const vector<string_view> &argv, size_t &i, string_view flag) {
 	if (i + 1 >= argv.size())
-		die(std::format("{} requires a value", flag));
+		die(fmt_ns::format("{} requires a value", flag));
 	return argv[++i];
 }
 
@@ -92,24 +100,24 @@ struct WidthsArgs {
 
 void load_images(Context &ctx) {
 	if (!fs::exists(ctx.folder))
-		die(std::format("folder not found: {}", ctx.folder));
+		die(fmt_ns::format("folder not found: {}", ctx.folder));
 	if (!io::LoadTiffFolder(ctx.folder.c_str(), ctx.images, ctx.w, ctx.h))
 		die("failed to load images");
-	if (ctx.verbose) std::cerr << std::format("loaded {} images ({}x{})", ctx.images.size(), ctx.w, ctx.h);
+	if (ctx.verbose) std::cerr << fmt_ns::format("loaded {} images ({}x{})", ctx.images.size(), ctx.w, ctx.h);
 }
 
 void apply_crop(Context &ctx, const CropArgs &a) {
 	if (a.pixels < 0 || a.pixels >= ctx.h)
-		die(std::format("crop pixels {} out of range [0, {})", a.pixels, ctx.h));
+		die(fmt_ns::format("crop pixels {} out of range [0, {})", a.pixels, ctx.h));
 	ctx.h -= a.pixels;
-	if (ctx.verbose) std::cerr << std::format("cropped {} px from bottom -> new size ({}x{})", a.pixels, ctx.w, ctx.h);
+	if (ctx.verbose) std::cerr << fmt_ns::format("cropped {} px from bottom -> new size ({}x{})", a.pixels, ctx.w, ctx.h);
 }
 
 void apply_denoise(Context &ctx, const DenoiseArgs &a) {
 	static const vector<string> valid = {"blur",	  "sfr_hrsem",	"sfr_hrstem", "sfr_hrtem",
 					     "sfr_lrsem", "sfr_lrstem", "sfr_lrtem"};
 	if (std::find(valid.begin(), valid.end(), a.filter) == valid.end())
-		die(std::format("invalid denoise filter: {}", a.filter));
+		die(fmt_ns::format("invalid denoise filter: {}", a.filter));
 	TileConfig cfg(TileType::Cropped, a.tile, a.overlap, a.center, a.include_outside);
 	if (a.filter == "blur") {
 		DenoiseInterface::Blur(ctx.images, ctx.w, ctx.h, 3, 1.0f);
@@ -117,7 +125,7 @@ void apply_denoise(Context &ctx, const DenoiseArgs &a) {
 		DenoiseInterface::Denoise(ctx.images, ctx.w, ctx.h, a.filter, cfg);
 	}
 	if (ctx.verbose)
-		std::cerr << std::format("denoise done (filter={}, tile={}, ov={}, center={}, include_outside={})",
+		std::cerr << fmt_ns::format("denoise done (filter={}, tile={}, ov={}, center={}, include_outside={})",
 					 a.filter,
 					 a.tile, a.overlap, a.center, a.include_outside);
 }
@@ -129,23 +137,23 @@ void run_analysis(Context &ctx, const AnalyzeArgs &a) {
 	float avg_snr = 0.0f;
 	ImageAnalysis::AnalyzeImages(ctx.images, ctx.w, ctx.h, hists, avg, snrs, avg_snr);
 	io::SaveAnalysisCsv(a.stats_csv.c_str(), hists, avg, snrs, avg_snr);
-	if (ctx.verbose) std::cerr << std::format("analysis -> {} (avg snr={})", a.stats_csv, avg_snr);
+	if (ctx.verbose) std::cerr << fmt_ns::format("analysis -> {} (avg snr={})", a.stats_csv, avg_snr);
 }
 
 void run_widths(Context &ctx, const WidthsArgs &a) {
 	auto polys = CrackDetector::DetectCracks(ctx.images, ctx.w, ctx.h);
 	auto widths = FeatureTracker::TrackCrackWidthProfiles(polys);
 	io::WriteCSV(a.widths_csv.c_str(), widths);
-	if (ctx.verbose) std::cerr << std::format("widths -> {}", a.widths_csv);
+	if (ctx.verbose) std::cerr << fmt_ns::format("widths -> {}", a.widths_csv);
 }
 
 void save_outputs(Context &ctx, const string &outdir) {
 	fs::create_directories(outdir);
 	for (size_t i = 0; i < ctx.images.size(); ++i) {
-		auto fn = std::format("{}/image_{}.tif", outdir, i);
+		auto fn = fmt_ns::format("{}/image_{}.tif", outdir, i);
 		io::WriteTiff(fn.c_str(), ctx.images[i], ctx.w, ctx.h);
 	}
-	if (ctx.verbose) std::cerr << std::format("wrote {} images -> {}", ctx.images.size(), outdir);
+	if (ctx.verbose) std::cerr << fmt_ns::format("wrote {} images -> {}", ctx.images.size(), outdir);
 }
 
 // --------- argument parsing ---------
@@ -261,7 +269,7 @@ Cmdline parse_args(const vector<string_view> &args) {
 				continue;
 			}
 
-	die(std::format("unknown argument: {} {}", a, USAGE));
+	die(fmt_ns::format("unknown argument: {} {}", a, USAGE));
 		}
 
 		if (c.folder.empty())
