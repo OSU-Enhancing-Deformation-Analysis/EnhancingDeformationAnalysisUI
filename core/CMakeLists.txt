@@ -12,8 +12,27 @@ target_include_directories(deformation_core
     ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # core depends on opencv (but NOT on imgui/glfw/glad/tiff)
-target_link_libraries(deformation_core
-  PUBLIC ${OpenCV_LIBS})
+#target_link_libraries(deformation_core
+# PUBLIC ${OpenCV_LIBS})
+
+# Ensure OpenCV headers are visible to this target
+#target_include_directories(deformation_core
+#	PUBLIC ${OpenCV_INCLUDE_DIRS})
+
+set(OpenCV_DIR "$ENV{OpenCV_DIR}" CACHE PATH "Path to OpenCVConfig.cmake")
+find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs highgui)
+
+if(OpenCV_FOUND)
+    message(STATUS "✅ Found OpenCV ${OpenCV_VERSION}")
+    message(STATUS "    Include dirs: ${OpenCV_INCLUDE_DIRS}")
+    message(STATUS "    Libraries: ${OpenCV_LIBS}")
+else()
+    message(FATAL_ERROR "❌ OpenCV not found! Please verify OpenCV_DIR.")
+endif()
+
+target_include_directories(deformation_core PUBLIC ${OpenCV_INCLUDE_DIRS})
+target_link_libraries(deformation_core PUBLIC ${OpenCV_LIBS})
+
 
 # optional backends
 if (EDA_WITH_PYTORCH)

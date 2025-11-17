@@ -13,8 +13,18 @@
 #include <opencv2/opencv.hpp>
 
 #include <algorithm>
-#include <format>
+
 #include <string>
+
+#if __has_include(<format>)
+    #include <format>
+    namespace format_ns = std;
+#elif __has_include(<fmt/format.h>)
+    #include <fmt/format.h>
+    namespace format_ns = fmt;
+#else
+    #error "Neither <format> nor <fmt/format.h> found — cannot format strings."
+#endif
 
 #define CALC_SLIDER_SIZE(text) (ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(#text).x) - 5
 
@@ -25,7 +35,7 @@ ImageSet::ImageSet(const std::string_view &folder_path) : m_folder_path(folder_p
 	m_window_name = folder_path.find_last_of('/') == std::string::npos
 			    ? folder_path
 			    : folder_path.substr(folder_path.find_last_of('/') + 1);
-	m_window_name = std::format("{} {}", m_window_name, m_window_id);
+	m_window_name = format_ns::format("{} {}", m_window_name, m_window_id);
 
 	LoadImages();
 
