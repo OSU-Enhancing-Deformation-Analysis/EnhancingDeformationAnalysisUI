@@ -57,14 +57,14 @@ set(CUPTI_LIB_PATH "${CUDA_TOOLKIT_ROOT_DIR}/extras/CUPTI/lib64/libcupti.so")
 set(CUPTI_INCLUDE_PATH "${CUDA_TOOLKIT_ROOT_DIR}/extras/CUPTI/include")
 
 if (EXISTS "${CUPTI_LIB_PATH}")
-    message(STATUS "✅ Found CUPTI at: ${CUPTI_LIB_PATH}")
+    message(STATUS "Found CUPTI at: ${CUPTI_LIB_PATH}")
     target_link_libraries(eda-gui PRIVATE
         ${CUPTI_LIB_PATH}
         ${CUDA_TOOLKIT_ROOT_DIR}/lib64/libcudart.so
     )
     target_include_directories(eda-gui PRIVATE ${CUPTI_INCLUDE_PATH})
 else()
-    message(WARNING "⚠ CUPTI not found at ${CUPTI_LIB_PATH} — profiler symbols may remain unresolved.")
+    message(WARNING "CUPTI not found at ${CUPTI_LIB_PATH} — profiler symbols may remain unresolved.")
 endif()
 # --- End CUPTI section ---
 

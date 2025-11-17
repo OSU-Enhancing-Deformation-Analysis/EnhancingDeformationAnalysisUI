@@ -43,11 +43,11 @@ find_package(CUDA REQUIRED)
 if (EXISTS "/usr/local/apps/cuda/11.8/extras/CUPTI/include")
     set(CUPTI_INCLUDE_DIR "/usr/local/apps/cuda/11.8/extras/CUPTI/include")
     set(CUPTI_LIBRARY "/usr/local/apps/cuda/11.8/extras/CUPTI/lib64/libcupti.so")
-    message(STATUS "✔ Found CUPTI: ${CUPTI_LIBRARY}")
+    message(STATUS "Found CUPTI: ${CUPTI_LIBRARY}")
     target_include_directories(eda-cli PRIVATE ${CUPTI_INCLUDE_DIR})
     target_link_libraries(eda-cli PRIVATE ${CUPTI_LIBRARY})
 else()
-    message(WARNING "⚠ CUPTI not found; profiling will be disabled.")
+    message(WARNING "CUPTI not found; profiling will be disabled.")
 endif()
 
 target_link_libraries(eda-cli
@@ -61,9 +61,9 @@ target_link_libraries(eda-cli
 # Link CUPTI only if it exists
 if (CUPTI_LIBRARY)
     target_link_libraries(eda-cli PRIVATE ${CUPTI_LIBRARY})
-    message(STATUS "✔ Found CUPTI: ${CUPTI_LIBRARY}")
+    message(STATUS "Found CUPTI: ${CUPTI_LIBRARY}")
 else()
-    message(WARNING "⚠ CUPTI not found; profiling will be disabled.")
+    message(WARNING "CUPTI not found; profiling will be disabled.")
 endif()
 
 
