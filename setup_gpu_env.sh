@@ -32,13 +32,18 @@ echo "  - nvcc: $(nvcc --version | tail -n 1)"
 
 
 # The cmake execution to get the cmake to run for this project under HPC.
-# cmake .. \
-#  -DCMAKE_BUILD_TYPE=Release \
-#  -DCMAKE_CXX_STANDARD=17 \
-#  -DCMAKE_CUDA_STANDARD=17 \
-#  -DCMAKE_PREFIX_PATH="$HOME/libtorch_gpu/share/cmake/Torch;$HOME/opt/opencv-4.10.0/build" \
-#  -DOpenCV_DIR=$HOME/opt/opencv-4.10.0/build \
-#  -DEDA_WITH_PYTORCH=ON \
-#  -DEDA_BUILD_GUI=ON \
-#  -DEDA_BUILD_CLI=ON \
-#  -DEDA_USE_VENDORED_DEPS=ON
+#cmake .. \
+ # -DCMAKE_BUILD_TYPE=Release \
+ # -DCMAKE_C_COMPILER="$CC" \
+ # -DCMAKE_CXX_COMPILER="$CXX" \
+ # -DCMAKE_CUDA_HOST_COMPILER="$CUDAHOSTCXX" \
+ # -DCMAKE_CUDA_STANDARD=17 \
+ # -DCMAKE_CUDA_STANDARD_REQUIRED=ON \
+ # -DCUDA_STANDARD=17 \
+ # -DCUDA_STANDARD_REQUIRED=ON \
+ # -DCMAKE_CUDA_FLAGS="--std=c++17" \
+ # -DCMAKE_PREFIX_PATH="$HOME/libtorch_gpu/share/cmake/Torch;$HOME/opt/opencv-4.10.0/build" \
+ # -DEDA_WITH_PYTORCH=ON \
+ # -DEDA_BUILD_GUI=ON \
+ # -DEDA_BUILD_CLI=ON \
+ # -DEDA_USE_VENDORED_DEPS=ON
