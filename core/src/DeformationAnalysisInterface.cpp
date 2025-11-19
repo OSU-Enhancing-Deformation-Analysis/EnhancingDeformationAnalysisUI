@@ -4,7 +4,11 @@
 
 #include <deformation_core/Tiler.hpp>
 
+#ifdef UI_INCLUDE_PYTORCH
 #include <torch/types.h>
+#include <torch/script.h>
+#include <torch/torch.h>
+#endif
 
 #include <opencv2/opencv.hpp>
 
@@ -14,8 +18,6 @@
 
 #include <functional>
 #include <future>
-#include <torch/script.h>
-#include <torch/torch.h>
 
 bool DeformationAnalysisInterface::m_processing = false;
 float DeformationAnalysisInterface::m_progress = 0.0f;
