@@ -1,4 +1,3 @@
-#include "imgui_internal.h"
 #include <Application.h>
 
 // glad must be above glfw, includes opengl header itself
