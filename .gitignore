@@ -3,3 +3,7 @@ build/
 /.vs
 /CMakeSettings.json
 **/imgui.ini
+.vscode/
+*.deb
+demo_script.sh
+cuda-*

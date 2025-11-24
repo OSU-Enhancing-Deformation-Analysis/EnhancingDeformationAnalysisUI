@@ -338,6 +338,29 @@ bool SaveAnalysisCsv(const char *path, const std::vector<std::vector<float>> &hi
 	f << "\n";
 	return true;
 }
+
+void WriteMotionCSV(const char *filename,
+                    const std::vector<std::vector<cv::Point2f>> &tracked_points) {
+    std::ofstream out(filename);
+    if (!out.is_open()) {
+        std::cerr << "failed to open " << filename << std::endl;
+        return;
+    }
+    
+    out << "frame,point_id,x,y\n";
+    
+    for (size_t frame = 0; frame < tracked_points.size(); ++frame) {
+        for (size_t pt = 0; pt < tracked_points[frame].size(); ++pt) {
+            const auto &p = tracked_points[frame][pt];
+            if (p.x < 0 || p.y < 0) continue;
+            
+            out << frame << "," << pt << "," 
+                << p.x << "," << p.y << "\n";
+        }
+    }
+    
+    out.close();
+}
 } // namespace io
 
 Profiler::Profiler(const char *name) {

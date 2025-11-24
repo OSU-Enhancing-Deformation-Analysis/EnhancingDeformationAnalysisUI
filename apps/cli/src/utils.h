@@ -28,6 +28,8 @@ bool WriteCSV(const char *path, std::vector<std::vector<cv::Point2f>> &points, s
 
 bool SaveAnalysisCsv(const char *path, const std::vector<std::vector<float>> &histograms,
 		     const std::vector<float> &avg_histogram, const std::vector<float> &snrs, float avg_snr);
+
+void WriteMotionCSV(const char *filename, const std::vector<std::vector<cv::Point2f>> &tracked_points);
 } // namespace io
 
 // Profiler class for measuring performance of code sections

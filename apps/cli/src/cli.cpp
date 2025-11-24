@@ -57,11 +57,13 @@ usage (subcommands):
      [crop --pixels <n>]
      [denoise --filter <name> --tile <n> --overlap <n> --center <n> [--include-outside]]
      [analyze --stats <stats.csv>]
+     [motion --out <motion.csv> [--features <n>]]
      [widths --out <widths.csv>]
 
 examples:
   eda --folder data crop --pixels 16 denoise --filter blur --tile 256 --overlap 0 --center 64 --include-outside
   eda --folder data analyze --stats stats.csv widths --out widths.csv --output out
+  eda --folder data/sequence motion --out motion.csv --features 100 --output results
 )USAGE";
 
 // --------- domain-facing pieces ---------
@@ -88,6 +90,11 @@ struct AnalyzeArgs {
 };
 struct WidthsArgs {
 	string widths_csv;
+};
+
+struct MotionArgs {
+    string output_csv;
+    int num_features = 50;  // automatically detected the number of feature points
 };
 
 void load_images(Context &ctx) {
@@ -139,6 +146,41 @@ void run_widths(Context &ctx, const WidthsArgs &a) {
 	if (ctx.verbose) std::cerr << std::format("widths -> {}", a.widths_csv);
 }
 
+void run_motion(Context &ctx, const MotionArgs &a) {
+    if (ctx.images.size() < 2) {
+        die("motion tracking requires at least 2 images");
+    }
+    
+    // detect feature points in the first frame
+    cv::Mat firstFrame(ctx.h, ctx.w, CV_8UC4, ctx.images[0]);
+    cv::Mat gray;
+    cv::cvtColor(firstFrame, gray, cv::COLOR_BGRA2GRAY);
+    
+    std::vector<cv::Point2f> points;
+    cv::goodFeaturesToTrack(gray, points, a.num_features, 0.01, 10);
+    
+    if (points.empty()) {
+        die("no features detected in first frame");
+    }
+    
+    if (ctx.verbose) {
+        std::cerr << std::format("detected {} feature points", points.size());
+    }
+    
+    // Call the current TrackFeatures functions
+    std::vector<std::vector<cv::Point2f>> tracked_points;
+    auto widths = FeatureTracker::TrackFeatures(
+        ctx.images, points, tracked_points, ctx.w, ctx.h
+    );
+    
+    // save to csv
+    io::WriteMotionCSV(a.output_csv.c_str(), tracked_points);
+    
+    if (ctx.verbose) {
+        std::cerr << std::format("motion tracking -> {}", a.output_csv);
+    }
+}
+
 void save_outputs(Context &ctx, const string &outdir) {
 	fs::create_directories(outdir);
 	for (size_t i = 0; i < ctx.images.size(); ++i) {
@@ -150,11 +192,12 @@ void save_outputs(Context &ctx, const string &outdir) {
 
 // --------- argument parsing ---------
 struct PipelineStep {
-	enum Kind { Crop, Denoise, Analyze, Widths } kind;
-	CropArgs crop;
-	DenoiseArgs denoise;
-	AnalyzeArgs analyze;
-	WidthsArgs widths;
+    enum Kind { Crop, Denoise, Analyze, Widths, Motion } kind;
+    CropArgs crop;
+    DenoiseArgs denoise;
+    AnalyzeArgs analyze;
+    WidthsArgs widths;
+    MotionArgs motion;
 };
 
 struct Cmdline {
@@ -261,6 +304,27 @@ Cmdline parse_args(const vector<string_view> &args) {
 				continue;
 			}
 
+			if (a == "motion") {
+				PipelineStep s{PipelineStep::Motion};
+				
+				while (i + 1 < args.size() && args[i + 1].starts_with("--")) {
+					auto k = args[++i];
+					if (k == "--out") {
+						s.motion.output_csv = string(take_value(args, i, k));
+					} else if (k == "--features") {
+						s.motion.num_features = to_int(take_value(args, i, k), k);
+					} else {
+						--i;
+						break;
+					}
+				}
+				if (s.motion.output_csv.empty()) {
+					die("motion requires --out <file>");
+				}
+				c.steps.push_back(s);
+				continue;
+			}
+
 	die(std::format("unknown argument: {} {}", a, USAGE));
 		}
 
@@ -295,6 +359,9 @@ Cmdline parse_args(const vector<string_view> &args) {
 				break;
 			case PipelineStep::Widths:
 				run_widths(ctx, s.widths);
+				break;
+			case PipelineStep::Motion:
+				run_motion(ctx, s.motion);
 				break;
 			}
 		}
