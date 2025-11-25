@@ -353,6 +353,6 @@ Profiler::~Profiler() {
 void Profiler::Stop() {
 	auto end_time = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
-	printf("Profiler: %s took %zu ms\n", name, duration);
+	printf("Profiler: %s took %llu ms\n", name, duration);
 	stopped = true;
 }

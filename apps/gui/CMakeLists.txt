@@ -66,6 +66,24 @@ target_include_directories(eda-gui PRIVATE
   ${EDA_ROOT}/libs)
 target_include_directories(eda-gui PRIVATE ${CMAKE_BINARY_DIR}/libtiff/libtiff)
 
+# macos: add objc++ file and cocoa framework
+if(APPLE)
+  # add the .mm impl for the file dialog
+  target_sources(eda-gui PRIVATE
+    ${EDA_ROOT}/apps/gui/src/utils.mm
+  )
+
+  # force objc++ mode on that file (clang usually infers it from .mm but
+  # some older cmakes get salty, so belt and suspenders)
+  set_source_files_properties(
+    ${EDA_ROOT}/apps/gui/src/utils.mm
+    PROPERTIES LANGUAGE OBJCXX
+  )
+
+  # link cocoa so NSOpenPanel works
+  target_link_libraries(eda-gui PRIVATE "-framework Cocoa")
+endif()
+
 # windows: windowed subsystem (no console popping up)
 if (WIN32)
   target_link_options(eda-gui PRIVATE "/SUBSYSTEM:WINDOWS")

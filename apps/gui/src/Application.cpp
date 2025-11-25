@@ -90,7 +90,7 @@ bool Application::InitializeGLFW() {
 	glfwSetErrorCallback(
 	    [](int error, const char *description) { fprintf(stderr, "GLFW Error %d: %s\n", error, description); });
 
-	// Enable vsync to limit frame rate
+	// Enable vsync to limit frame rate to conserve cpu/gpu resources
 	glfwSwapInterval(1);
 
 	return true;
@@ -245,13 +245,10 @@ void Application::RenderWelcomeScreen() {
 
 void Application::RenderFolderSelector() {
 #ifdef __APPLE__
-	// persistent buffer for imgui text input
-	static char folder_buf[1024] = "";
+	if (ImGui::Button("Choose Folder")) {
+		std::string path = utils::OpenFileDialog("", "Choose Folder", true);
 
-	ImGui::InputTextWithHint("##image_folder", "enter image folder path", folder_buf, IM_ARRAYSIZE(folder_buf));
-
-	if (ImGui::Button("Load Images")) {
-		std::filesystem::path folder_path = folder_buf;
+		std::filesystem::path folder_path = path;
 
 		if (!folder_path.empty() && std::filesystem::is_directory(folder_path) &&
 		    utils::DirectoryContainsTiff(folder_path.string())) {

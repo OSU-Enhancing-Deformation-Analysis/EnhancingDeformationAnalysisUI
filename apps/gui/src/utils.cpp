@@ -10,6 +10,8 @@
 
 #include <imgui.h>
 
+#include <deformation_core/Tiler.hpp>
+
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN // i love this
 #define NOMINMAX	    // i hate this
@@ -18,6 +20,7 @@
 #endif
 
 namespace utils {
+#if !defined(__APPLE__)
 std::string OpenFileDialog(const char *open_path, const char *title, const bool folders_only, const char *filter) {
 #ifdef _WIN32
 	CoInitialize(nullptr);
@@ -53,6 +56,7 @@ std::string OpenFileDialog(const char *open_path, const char *title, const bool 
 	std::string str(size_needed - 1, 0);
 	WideCharToMultiByte(CP_UTF8, 0, folderPath.c_str(), -1, &str[0], size_needed, nullptr, nullptr);
 	return str;
+
 #else
 
 	char buf[256];
@@ -80,6 +84,7 @@ std::string OpenFileDialog(const char *open_path, const char *title, const bool 
 		return std::string(output);
 #endif
 }
+#endif
 
 std::string SaveFileDialog(const char *save_path, const char *title, const char *filter) {
 #ifdef _WIN32
