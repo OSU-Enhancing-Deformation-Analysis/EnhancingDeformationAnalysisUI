@@ -130,6 +130,37 @@ jobs:
             mkdir build && cd build && cmake .. -DUI_RELEASE:bool=true -DTorch_DIR=/opt/libtorch/share/cmake/Torch && make -j$(nproc)
           "
 
+  build-macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: install opencv
+        run: brew install opencv
+
+      - name: restore libtorch cache
+        id: cache-libtorch
+        uses: actions/cache@v4
+        with:
+          path: /opt/libtorch
+          key: macos-arm64-libtorch-2.7.0
+
+      - name: download libtorch
+        if: steps.cache-libtorch.outputs.cache-hit != 'true'
+        run: |
+          curl -L --retry 3 -o libtorch.zip https://download.pytorch.org/libtorch/cpu/libtorch-macos-arm64-2.7.0.zip
+          sudo unzip libtorch.zip -d /opt
+          rm libtorch.zip
+
+      - name: configure & build
+        run: |
+          cmake -S . -B build \
+            -DUI_RELEASE:BOOL=true \
+            -DTorch_DIR=/opt/libtorch/share/cmake/Torch
+          cmake --build build -j $(sysctl -n hw.ncpu)
+
   release-windows:
     needs: build-windows
     runs-on: windows-latest
