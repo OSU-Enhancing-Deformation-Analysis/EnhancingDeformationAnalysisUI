@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.20)
 
 project(eda
   LANGUAGES C CXX
-  DESCRIPTION "enhancing deformation analysis – core + gui + cli")
+  DESCRIPTION "enhancing deformation analysis ï¿½ core + gui + cli")
+
+if (APPLE)
+  enable_language(OBJCXX)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -5,13 +5,17 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <map>
 
 #include <Texture.h>
-#include <deformation_core/Tiler.hpp>
+
+struct TileConfig;
+namespace cv {
+	template<typename T> class Point_;
+	using Point2f = Point_<float>;
+}
 
 #include <imgui.h>
-
-#include <opencv2/opencv.hpp>
 
 namespace utils {
 // TODO: fill in the filter for win32 (although it may not matter?)

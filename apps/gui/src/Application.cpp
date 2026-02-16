@@ -1,6 +1,7 @@
 #include <Application.h>
 
 // glad must be above glfw, includes opengl header itself
+// format will move it below glfw...
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -11,9 +12,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Application::Application()
-    : m_window(nullptr), m_showWelcome(true), m_assetsFound(false),
-      m_dockspaceID(0) {}
+Application::Application() : m_window(nullptr), m_showWelcome(true), m_assetsFound(false), m_dockspaceID(0) {}
 
 Application::~Application() { Shutdown(); }
 
@@ -29,9 +28,8 @@ bool Application::Initialize() {
 	// Verify assets folder existence
 	m_assetsFound = std::filesystem::exists("assets");
 	if (!m_assetsFound) {
-		fprintf(stderr,
-			"ERROR: Assets folder not found! The folder is "
-			"required for this program to function correctly!\n");
+		fprintf(stderr, "ERROR: Assets folder not found! The folder is "
+				"required for this program to function correctly!\n");
 	}
 
 	// Initialize GLFW and OpenGL
@@ -58,14 +56,11 @@ bool Application::InitializeGLFW() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // for macOS
 #endif
-	
+
 #ifdef EDA_GUI_RELEASE
-	m_window = glfwCreateWindow(
-	    1400, 1050, "Enhancing Deformation Analysis UI", NULL, NULL);
+	m_window = glfwCreateWindow(1400, 1050, "Enhancing Deformation Analysis UI", NULL, NULL);
 #else
-	m_window = glfwCreateWindow(1400, 1050,
-				    "Enhancing Deformation Analysis UI (DEBUG)",
-				    NULL, NULL);
+	m_window = glfwCreateWindow(1400, 1050, "Enhancing Deformation Analysis UI (DEBUG)", NULL, NULL);
 #endif
 
 	int w, h, c;
@@ -92,11 +87,10 @@ bool Application::InitializeGLFW() {
 	}
 
 	// Set GLFW error callback
-	glfwSetErrorCallback([](int error, const char *description) {
-		fprintf(stderr, "GLFW Error %d: %s\n", error, description);
-	});
+	glfwSetErrorCallback(
+	    [](int error, const char *description) { fprintf(stderr, "GLFW Error %d: %s\n", error, description); });
 
-	// Enable vsync to limit frame rate
+	// Enable vsync to limit frame rate to conserve cpu/gpu resources
 	glfwSwapInterval(1);
 
 	return true;
@@ -165,12 +159,10 @@ void Application::RenderUI() {
 		ImGui::Spacing();
 		ImGui::Separator();
 		ImGui::Spacing();
-		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
-				   "WARNING: Assets folder not found!");
-		ImGui::TextWrapped(
-		    "Please place the assets folder in the same directory as "
-		    "the executable. The assets folder is required for the "
-		    "program to function correctly.");
+		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "WARNING: Assets folder not found!");
+		ImGui::TextWrapped("Please place the assets folder in the same directory as "
+				   "the executable. The assets folder is required for the "
+				   "program to function correctly.");
 	}
 
 	ImGui::End();
@@ -185,10 +177,7 @@ void Application::RenderWelcomeScreen() {
 	// the font is just a little fuzzy
 	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.28f, 0.56f, 1.0f, 1.0f));
 	ImGui::SetWindowFontScale(1.5f);
-	ImGui::SetCursorPosX(
-	    (ImGui::GetWindowWidth() -
-	     ImGui::CalcTextSize("Deformation Analysis UI").x) *
-	    0.5f);
+	ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::CalcTextSize("Deformation Analysis UI").x) * 0.5f);
 	ImGui::Text("Deformation Analysis UI");
 	ImGui::SetWindowFontScale(1.0f);
 	ImGui::PopStyleColor();
@@ -218,8 +207,7 @@ void Application::RenderWelcomeScreen() {
 	ImGui::Spacing();
 
 	// Getting started
-	ImGui::TextColored(ImVec4(0.28f, 0.56f, 1.0f, 1.0f),
-			   "Getting Started:");
+	ImGui::TextColored(ImVec4(0.28f, 0.56f, 1.0f, 1.0f), "Getting Started:");
 	ImGui::TextWrapped("1. Click the 'Select Folder' button below to load "
 			   "your TIFF images");
 	ImGui::TextWrapped("2. Each image set will open in a new tab");
@@ -230,30 +218,26 @@ void Application::RenderWelcomeScreen() {
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	ImGui::TextColored(ImVec4(0.28f, 0.56f, 1.0f, 1.0f),
-			   "This build features:");
-#ifdef UI_INCLUDE_PYTORCH
+	ImGui::TextColored(ImVec4(0.28f, 0.56f, 1.0f, 1.0f), "This build features:");
+#ifdef EDA_WITH_PYTORCH
 	ImGui::Bullet();
 	ImGui::TextWrapped("PyTorch support for AI models");
 #endif
-#ifdef UI_INCLUDE_TENSORFLOW
+#ifdef EDA_WITH_TENSORFLOW
 	ImGui::Bullet();
 	ImGui::TextWrapped("TensorFlow support for AI models");
 #endif
 #ifndef UI_RELEASE
 	ImGui::Bullet();
-	ImGui::TextColored(ImVec4(0.8f, 0.5f, 0.5f, 1.0f),
-			   "Debug build with additional features!");
+	ImGui::TextColored(ImVec4(0.8f, 0.5f, 0.5f, 1.0f), "Debug build with additional features!");
 #endif
 
 	ImGui::SetCursorPosX(ImGui::GetWindowWidth() * 0.25f);
-	if (ImGui::Button("Hide Welcome Screen",
-			  ImVec2(ImGui::GetWindowWidth() * 0.5f, 0))) {
+	if (ImGui::Button("Hide Welcome Screen", ImVec2(ImGui::GetWindowWidth() * 0.5f, 0))) {
 		m_showWelcome = false;
 	}
 
-	ImGui::SetCursorPosX(
-	    (ImGui::GetWindowWidth() - ImGui::GetItemRectSize().x) * 0.5f);
+	ImGui::SetCursorPosX((ImGui::GetWindowWidth() - ImGui::GetItemRectSize().x) * 0.5f);
 	ImGui::Spacing();
 	ImGui::Separator();
 	ImGui::Spacing();
@@ -261,37 +245,32 @@ void Application::RenderWelcomeScreen() {
 
 void Application::RenderFolderSelector() {
 #ifdef __APPLE__
-	ImGui::InputTextWithHint("##image_folder", "Enter image folder path",
-				 nullptr, 0);
-	if (ImGui::Button("Load Images")) {
-		const char *folder_path =
-		    ImGui::GetInputTextState("##image_folder")->Text;
-		if (std::filesystem::is_directory(folder_path)) {
-			m_imageSets.emplace_back(
-			    std::make_unique<ImageSet>(folder_path));
+	if (ImGui::Button("Choose Folder")) {
+		std::string path = utils::OpenFileDialog("", "Choose Folder", true);
+
+		std::filesystem::path folder_path = path;
+
+		if (!folder_path.empty() && std::filesystem::is_directory(folder_path) &&
+		    utils::DirectoryContainsTiff(folder_path.string())) {
+
+			m_imageSets.emplace_back(std::make_unique<ImageSet>(folder_path.string()));
 		}
 	}
 #else
 	// Make the folder selector button more prominent
-	ImGui::PushStyleColor(ImGuiCol_Button,
-			      ImVec4(0.28f, 0.56f, 1.0f, 0.7f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-			      ImVec4(0.28f, 0.56f, 1.0f, 0.9f));
-	ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-			      ImVec4(0.28f, 0.56f, 1.0f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.28f, 0.56f, 1.0f, 0.7f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.28f, 0.56f, 1.0f, 0.9f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.28f, 0.56f, 1.0f, 1.0f));
 
 	// Center the button horizontally
 	float buttonWidth = 150.0f;
 	ImGui::SetCursorPosX((ImGui::GetWindowWidth() - buttonWidth) * 0.5f);
 
 	if (ImGui::Button("Select Folder", ImVec2(buttonWidth, 35))) {
-		std::string folder_path =
-		    utils::OpenFileDialog(".", "Choose a Folder to Load", true);
-		if (!folder_path.empty() &&
-		    std::filesystem::is_directory(folder_path) &&
+		std::string folder_path = utils::OpenFileDialog(".", "Choose a Folder to Load", true);
+		if (!folder_path.empty() && std::filesystem::is_directory(folder_path) &&
 		    utils::DirectoryContainsTiff(folder_path)) {
-			m_imageSets.emplace_back(
-			    std::make_unique<ImageSet>(folder_path));
+			m_imageSets.emplace_back(std::make_unique<ImageSet>(folder_path));
 		}
 	}
 
@@ -308,8 +287,7 @@ void Application::RenderImageSets() {
 			it = m_imageSets.erase(it);
 		} else {
 			// Display the image set
-			ImGui::SetNextWindowDockID(m_dockspaceID,
-						   ImGuiCond_FirstUseEver);
+			ImGui::SetNextWindowDockID(m_dockspaceID, ImGuiCond_FirstUseEver);
 			(*it)->Display();
 			++it;
 		}
