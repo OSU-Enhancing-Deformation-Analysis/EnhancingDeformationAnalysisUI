@@ -2,25 +2,23 @@ name: Build Linux Image
 
 on:
   push:
-    branches: [ ci/cd ]
+    branches: [ main ]
     paths:
       - 'Dockerfile'
-  pull_request:
-    branches: [ ci/cd ]
-    paths:
-      - 'Dockerfile'
+  workflow_dispatch:
 
 jobs:
   build-linux-image:
-    permissions: write-all
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set Lowercase Repository Name
+      - name: set lowercase repository name
         id: repo_name
         run: echo "REPO_NAME_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
-      - name: Build and Push Linux Image
+      - name: build and push linux image
         run: |
-          docker build -f Dockerfile -t ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest .
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker build -f Dockerfile -t ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest .
           docker push ghcr.io/${REPO_NAME_LOWER}/ci-image-linux:latest
