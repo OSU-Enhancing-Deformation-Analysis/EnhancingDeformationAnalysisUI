@@ -1,7 +1,10 @@
 name: setup windows dependencies
-description: cache and install vcpkg, tensorflow, and pytorch deps for windows builds
+description: cache and install opencv, tensorflow, and pytorch deps for windows builds
 
 inputs:
+  opencv-version:
+    description: opencv version
+    default: '4.11.0'
   tensorflow-version:
     description: tensorflow c api version
     default: '2.18.1'
@@ -12,18 +15,22 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: restore vcpkg cache
-      id: cache-vcpkg
+    - name: restore opencv cache
+      id: cache-opencv
       uses: actions/cache@v4
       with:
-        path: c:/vcpkg/installed/x64-windows
-        key: windows-vcpkg-opencv4
+        path: c:/opencv
+        key: windows-opencv-${{ inputs.opencv-version }}
 
-    - name: install opencv via vcpkg
-      if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+    - name: download opencv
+      if: steps.cache-opencv.outputs.cache-hit != 'true'
       shell: pwsh
       run: |
-        & c:/vcpkg/vcpkg.exe install opencv4:x64-windows
+        $version = "${{ inputs.opencv-version }}"
+        $url = "https://github.com/opencv/opencv/releases/download/${version}/opencv-${version}-windows.exe"
+        curl -L --retry 3 -o opencv.exe $url
+        7z x opencv.exe -oC:/opencv -y
+        Remove-Item opencv.exe
 
     - name: restore tensorflow c api cache
       id: cache-tf

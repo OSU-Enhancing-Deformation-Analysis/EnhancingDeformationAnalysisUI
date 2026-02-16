@@ -32,10 +32,9 @@ jobs:
           cmake -S . -B build `
             -G "Visual Studio 17 2022" `
             -A x64 `
-            -DCMAKE_TOOLCHAIN_FILE=c:/vcpkg/scripts/buildsystems/vcpkg.cmake `
             -DUI_RELEASE:BOOL=true `
+            -DOpenCV_DIR=c:/opencv/opencv/build `
             -DTorch_DIR=c:/pytorch/libtorch/share/cmake/Torch `
-            -DOpenCV_DIR=c:/vcpkg/installed/x64-windows/share/opencv4 `
             -DEDA_WITH_TENSORFLOW=ON `
             -DCMAKE_MODULE_PATH="$PWD/libs/cppflow/cmake/modules" `
             -Dtensorflow_INCLUDE_DIRS=c:/tensorflow/include `

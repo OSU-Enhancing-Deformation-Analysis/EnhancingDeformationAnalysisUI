@@ -7,3 +7,4 @@ build/
 *.deb
 demo_script.sh
 cuda-*
+.DS_Store
