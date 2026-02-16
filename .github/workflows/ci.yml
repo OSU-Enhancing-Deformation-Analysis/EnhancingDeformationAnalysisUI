@@ -36,7 +36,7 @@ jobs:
             -DOpenCV_DIR=c:/opencv/opencv/build `
             -DTorch_DIR=c:/pytorch/libtorch/share/cmake/Torch `
             -DEDA_WITH_TENSORFLOW=ON `
-            -DCMAKE_MODULE_PATH="$PWD/libs/cppflow/cmake/modules" `
+            -DCMAKE_MODULE_PATH="$($PWD.Path -replace '\\','/')/libs/cppflow/cmake/modules" `
             -Dtensorflow_INCLUDE_DIRS=c:/tensorflow/include `
             -Dtensorflow_LIBRARIES=c:/tensorflow/lib/tensorflow.lib
           cmake --build build
