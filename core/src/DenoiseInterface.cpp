@@ -1,7 +1,8 @@
 #include <deformation_core/DenoiseInterface.hpp>
+#include <deformation_core/Profile.hpp>
 #include <deformation_core/ThreadPool.hpp>
 
-#ifdef UI_INCLUDE_TENSORFLOW
+#ifdef EDA_WITH_TENSORFLOW
 #include <cppflow/cppflow.h>
 #endif
 
@@ -15,7 +16,7 @@ bool DenoiseInterface::m_is_processing = false;
 bool DenoiseInterface::Denoise(std::vector<uint32_t *> &images, int width, int height, const std::string &model_name,
 			       const TileConfig &config) {
 
-#ifdef UI_INCLUDE_TENSORFLOW
+#ifdef EDA_WITH_TENSORFLOW
 	cppflow::model model("assets/models/tk_r_em/" + model_name);
 
 	for (int i = 0; i < images.size(); i++) {

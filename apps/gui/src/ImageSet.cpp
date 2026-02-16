@@ -213,7 +213,8 @@ void ImageSet::DisplayImageComparisonTab() {
 										      m_textures[0]->GetHeight()];
 							for (int i = 0; i < m_textures.size(); i++) {
 								char path[256];
-								sprintf(path,
+								snprintf(path,
+									strlen(path),
 									"%s/"
 									"original_"
 									"frame_%d."
@@ -238,7 +239,8 @@ void ImageSet::DisplayImageComparisonTab() {
 									 m_processed_textures[0]->GetHeight()];
 							for (int i = 0; i < m_processed_textures.size(); i++) {
 								char path[256];
-								sprintf(path,
+								snprintf(path,
+									strlen(path),
 									"%s/"
 									"processed_"
 									"frame_%d."
@@ -561,7 +563,7 @@ void ImageSet::DisplayImageAnalysisTab() {
 			ImGui::Text("SNR: %.2f", snrs[m_analysis_current_frame]);
 			auto size = ImVec2(220, 200);
 			char label[256];
-			sprintf(label, "Frame %d Histogram", m_analysis_current_frame);
+			snprintf(label, strlen(label), "Frame %d Histogram", m_analysis_current_frame);
 			ImGui::PlotHistogram(label, &histograms[m_analysis_current_frame][0], 256, 0, NULL, 0.0f, 1.0f,
 					     size);
 		}

@@ -254,7 +254,7 @@ void PreprocessingTab::DisplayPreprocessingTab(bool &changed) {
 			m_processing_future = std::make_shared<std::future<bool>>(std::move(future));
 		}
 
-#ifdef UI_INCLUDE_TENSORFLOW
+#ifdef EDA_WITH_TENSORFLOW
 
 		ImGui::SeparatorText("AI Denoising");
 		ImGui::SetNextItemWidth(235 - ImGui::CalcTextSize("Model").x);

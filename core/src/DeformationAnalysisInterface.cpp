@@ -1,10 +1,11 @@
 #include "deformation_core/DeformationAnalysisInterface.hpp"
 
+#include <deformation_core/Profile.hpp>
 #include <deformation_core/ThreadPool.hpp>
 
 #include <deformation_core/Tiler.hpp>
 
-#ifdef UI_INCLUDE_PYTORCH
+#ifdef EDA_WITH_PYTORCH
 #include <torch/types.h>
 #include <torch/script.h>
 #include <torch/torch.h>
@@ -12,7 +13,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#ifdef UI_INCLUDE_TENSORFLOW
+#ifdef EDA_WITH_TENSORFLOW
 #include <cppflow/cppflow.h>
 #endif
 
@@ -28,12 +29,19 @@ bool DeformationAnalysisInterface::RunModel(std::vector<uint32_t *> &images, int
 	m_processing = true;
 	m_progress = 0.0f;
 
-#ifdef UI_INCLUDE_PYTORCH
+#ifdef EDA_WITH_PYTORCH
 	auto to_tensor = [](const cv::Mat &m) {
 		return torch::from_blob(m.data, {1, 1, 256, 256}, torch::kUInt8).to(torch::kFloat32).clone();
 	};
 
-	auto dev = torch::cuda::is_available() ? torch::kCUDA : torch::kCPU;
+	auto dev = torch::kCPU;
+	if (torch::cuda::is_available()) {
+		dev = torch::kCUDA;
+#ifdef __APPLE__
+	} else if (torch::mps::is_available()) {
+		dev = torch::kMPS;
+#endif
+	}
 	// input: 2 images, each 256x256 and need to be converted to 1x256x256
 	// (1 channel) input: data format: float between [0, 255] output: 2
 	// images, each 1x256x256 (total output batchx2x256x256) output: data
@@ -118,10 +126,10 @@ bool DeformationAnalysisInterface::RunModel(std::vector<uint32_t *> &images, int
 	m_progress = 1.0f;
 	m_processing = false;
 	return true;
-#else  // UI_INCLUDE_PYTORCH
+#else  // EDA_WITH_PYTORCH
 	m_processing = false;
 	return false;
-#endif // UI_INCLUDE_PYTORCH
+#endif // EDA_WITH_PYTORCH
 }
 
 // Asynchronous version of the model execution
@@ -150,13 +158,20 @@ bool DeformationAnalysisInterface::RunModelBatch(std::vector<uint32_t *> &images
 	m_processing = true;
 	m_progress = 0.0f;
 
-#ifdef UI_INCLUDE_PYTORCH
+#ifdef EDA_WITH_PYTORCH
 	auto to_tensor = [](const cv::Mat &m) {
 		return torch::from_blob(m.data, {1, 1, 256, 256}, torch::kUInt8).to(torch::kFloat32).clone();
 	};
 	auto to_u8 = [&](torch::Tensor x) { return x.add(2.0).div(4.0).mul(255).clamp(0, 255).to(torch::kUInt8); };
 
-	auto dev = torch::cuda::is_available() ? torch::kCUDA : torch::kCPU;
+	auto dev = torch::kCPU;
+	if (torch::cuda::is_available()) {
+		dev = torch::kCUDA;
+#ifdef __APPLE__
+	} else if (torch::mps::is_available()) {
+		dev = torch::kMPS;
+#endif
+	}
 	auto model = torch::jit::load("assets/models/batch-m4-combo.pt");
 	model.to(dev);
 	model.eval();

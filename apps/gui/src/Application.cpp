@@ -219,11 +219,11 @@ void Application::RenderWelcomeScreen() {
 	ImGui::Spacing();
 
 	ImGui::TextColored(ImVec4(0.28f, 0.56f, 1.0f, 1.0f), "This build features:");
-#ifdef UI_INCLUDE_PYTORCH
+#ifdef EDA_WITH_PYTORCH
 	ImGui::Bullet();
 	ImGui::TextWrapped("PyTorch support for AI models");
 #endif
-#ifdef UI_INCLUDE_TENSORFLOW
+#ifdef EDA_WITH_TENSORFLOW
 	ImGui::Bullet();
 	ImGui::TextWrapped("TensorFlow support for AI models");
 #endif
