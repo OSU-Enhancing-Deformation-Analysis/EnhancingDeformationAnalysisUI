@@ -36,6 +36,8 @@ jobs:
             -DUI_RELEASE:BOOL=true `
             -DTorch_DIR=c:/pytorch/libtorch/share/cmake/Torch `
             -DOpenCV_DIR=c:/vcpkg/installed/x64-windows/share/opencv4 `
+            -DEDA_WITH_TENSORFLOW=ON `
+            -DCMAKE_MODULE_PATH="$PWD/libs/cppflow/cmake/modules" `
             -Dtensorflow_INCLUDE_DIRS=c:/tensorflow/include `
             -Dtensorflow_LIBRARIES=c:/tensorflow/lib/tensorflow.lib
           cmake --build build
@@ -80,6 +82,7 @@ jobs:
               -DUI_RELEASE:bool=true \
               -DTorch_DIR=/opt/libtorch/share/cmake/Torch \
               -DEDA_WITH_TENSORFLOW=ON \
+              -DCMAKE_MODULE_PATH=/app/libs/cppflow/cmake/modules \
               -Dtensorflow_INCLUDE_DIRS=/usr/local/include \
               -Dtensorflow_LIBRARIES=/usr/local/lib/libtensorflow.so \
             && make -j\$(nproc)
