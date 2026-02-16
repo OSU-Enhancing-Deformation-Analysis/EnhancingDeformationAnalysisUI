@@ -1,0 +1,67 @@
+name: setup windows dependencies
+description: cache and install opencv, tensorflow, and pytorch deps for windows builds
+
+inputs:
+  opencv-version:
+    description: opencv version
+    default: '4.11.0'
+  tensorflow-version:
+    description: tensorflow c api version
+    default: '2.18.1'
+  pytorch-version:
+    description: libtorch version
+    default: '2.7.0'
+
+runs:
+  using: composite
+  steps:
+    - name: restore opencv cache
+      id: cache-opencv
+      uses: actions/cache@v4
+      with:
+        path: c:/opencv
+        key: windows-opencv-${{ inputs.opencv-version }}
+
+    - name: download opencv
+      if: steps.cache-opencv.outputs.cache-hit != 'true'
+      shell: pwsh
+      run: |
+        $version = "${{ inputs.opencv-version }}"
+        $url = "https://github.com/opencv/opencv/releases/download/${version}/opencv-${version}-windows.exe"
+        curl -L --retry 3 -o opencv.exe $url
+        7z x opencv.exe -oC:/opencv -y
+        Remove-Item opencv.exe
+
+    - name: restore tensorflow c api cache
+      id: cache-tf
+      uses: actions/cache@v4
+      with:
+        path: c:/tensorflow
+        key: windows-tf-capi-${{ inputs.tensorflow-version }}
+
+    - name: download tensorflow c api
+      if: steps.cache-tf.outputs.cache-hit != 'true'
+      shell: pwsh
+      run: |
+        $version = "${{ inputs.tensorflow-version }}"
+        $url = "https://storage.googleapis.com/tensorflow/versions/${version}/libtensorflow-cpu-windows-x86_64.zip"
+        curl -L --retry 3 -o tf.zip $url
+        Expand-Archive tf.zip -DestinationPath c:/tensorflow
+        Remove-Item tf.zip
+
+    - name: restore libtorch cache
+      id: cache-libtorch
+      uses: actions/cache@v4
+      with:
+        path: c:/pytorch
+        key: windows-libtorch-${{ inputs.pytorch-version }}
+
+    - name: download libtorch
+      if: steps.cache-libtorch.outputs.cache-hit != 'true'
+      shell: pwsh
+      run: |
+        $version = "${{ inputs.pytorch-version }}"
+        $url = "https://download.pytorch.org/libtorch/cpu/libtorch-win-shared-with-deps-${version}%2Bcpu.zip"
+        curl -L --retry 3 -o torch.zip $url
+        Expand-Archive torch.zip -DestinationPath c:/pytorch
+        Remove-Item torch.zip
