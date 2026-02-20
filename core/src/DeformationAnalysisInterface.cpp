@@ -152,7 +152,7 @@ std::future<bool> DeformationAnalysisInterface::RunModelAsync(std::vector<uint32
 
 bool DeformationAnalysisInterface::RunModelBatch(std::vector<uint32_t *> &images, int width, int height,
 						 std::vector<Tile> &output_tiles, const TileConfig &tile_config,
-						 const int batch_size) // ← new adjustable batch size
+						 const int batch_size) // - new adjustable batch size
 {
 
 	m_processing = true;
