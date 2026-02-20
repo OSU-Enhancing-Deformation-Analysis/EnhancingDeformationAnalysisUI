@@ -1,1 +1,3 @@
 **.pb linguist-vendored=true
+libs/glad/* linguist-vendored=true
+libs/stb_image/* linguist-vendored=true
