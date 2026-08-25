@@ -10,22 +10,32 @@
 #include <vector>
 
 class ThreadPool {
-      public:
-	// Add a task to the thread pool
-	template <class F, class... Args>
-	auto enqueue(F &&f, Args &&...args)
-	    -> std::future<typename std::invoke_result<F, Args...>::type>;
+         public:
+        // Clear all pending tasks in the queue
+        void clear_queue() {
+            std::unique_lock<std::mutex> lock(m_queue_mutex);
+            std::queue<std::function<void()>> empty;
+            std::swap(m_tasks, empty);
+        }
 
-	static ThreadPool &GetThreadPool() {
-		static ThreadPool instance;
-		return instance;
-	}
+        // Check if any work is queued or executing
+        bool is_busy() {
+            return get_active_tasks() > 0 || get_queue_size() > 0;
+        }
 
-	// Get the number of tasks in the queue
-	size_t get_queue_size();
+        // Singleton instance accessor
+        static ThreadPool &GetThreadPool() {
+            static ThreadPool instance;
+            return instance;
+        }
 
-	// Set a callback to be called when a task completes
-	void set_on_task_complete(std::function<void()> callback);
+        // Add a task to the thread pool
+        template <class F, class... Args>
+        auto enqueue(F &&f, Args &&...args)
+            -> std::future<typename std::invoke_result<F, Args...>::type>;
+
+        // Get the number of tasks in the queue
+        size_t get_queue_size();
 
 	// Get the number of active tasks
 	size_t get_active_tasks() const;
